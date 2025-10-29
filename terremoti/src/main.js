@@ -15,11 +15,15 @@ const processedData = data.features.map(feature => {
     const magnitudine = feature.properties.mag
     const latitudine = feature.geometry.coordinates[1]
     const longitudine = feature.geometry.coordinates[0]
+    const time = feature.properties.time // timestamp in ms
+    // converto in stringa leggibile
+    const dateStr = time ? new Date(time).toLocaleString() : ""
     return {
         place,
         magnitudine,
         latitudine,
-        longitudine
+        longitudine,
+        time: dateStr
     }
 })
 
@@ -122,8 +126,12 @@ processedData.forEach(d => {
         fillColor: '#f03',
         fillOpacity: 0.5,
         radius: 500 * Math.pow(2.5, d.magnitudine)
-    })
-
+    }).bindPopup(
+        d.place + '<br>' +
+        'Longitudine: ' + d.longitudine + '<br>' +
+        'Latitudine: ' + d.latitudine + '<br>' +
+        'Orario: ' + d.time
+    )
     if (!markersByMag[key]) markersByMag[key] = []
     markersByMag[key].push(circle)
 })
