@@ -2,6 +2,8 @@ import "./style.css"
 
 const map = L.map("map").setView([45.5135, 10.1165], 2)
 
+const sezioni = {}
+
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -101,7 +103,8 @@ const creaFiltri = (data) => {
     return keys
 }
 
-const magFiltri = creaFiltri(categorie)
+creaFiltri(categorie)
+sezioni["filtri"] = document.getElementById('filtersView')
 
 // non scatenare l'evento qui: i marker e i listener non sono ancora pronti
 
@@ -163,6 +166,47 @@ form.addEventListener('reset', () => {
 
 // applica lo stato iniziale dei filtri (mostra i cerchi corrispondenti ai checkbox selezionati di default)
 form.dispatchEvent(new Event('change'))
+
+// Gestione click sul menu
+const showFiltersMenu = document.getElementById('showFiltersMenu');
+const showListMenu = document.getElementById('showListMenu');
+const filtersView = document.getElementById('filtersView');
+const listView = document.getElementById('listView');
+
+showFiltersMenu.addEventListener('click', () => {
+    filtersView.style.display = '';
+    listView.style.display = 'none';
+});
+
+showListMenu.addEventListener('click', () => {
+    filtersView.style.display = 'none';
+    listView.style.display = '';
+    sezioni["filtri"] = document.getElementById('filtersView')
+    document.getElementById('filtersView').innerHTML = '';
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const showFiltersMenu = document.getElementById('showFiltersMenu');
+    const showListMenu = document.getElementById('showListMenu');
+    const filtersView = document.getElementById('filtersView');
+    const listView = document.getElementById('listView');
+    showFiltersMenu.addEventListener('click', function () {
+        filtersView.style.display = 'block';
+        listView.style.display = 'none';
+        showFiltersMenu.classList.add('active');
+        showListMenu.classList.remove('active');
+    });
+    showListMenu.addEventListener('click', function () {
+        filtersView.style.display = 'none';
+        listView.style.display = 'block';
+        showListMenu.classList.add('active');
+        showFiltersMenu.classList.remove('active');
+    });
+    // Stato iniziale: mostra filtri
+    showFiltersMenu.classList.add('active');
+    filtersView.style.display = 'block';
+    listView.style.display = 'none';
+});
 
 console.log(processedData)
 console.log(grandiTerremoti)
