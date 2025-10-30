@@ -2,7 +2,6 @@ import "./style.css"
 
 const map = L.map("map").setView([45.5135, 10.1165], 2)
 
-const sezioni = {}
 
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
@@ -104,9 +103,6 @@ const creaFiltri = (data) => {
 }
 
 creaFiltri(categorie)
-sezioni["filtri"] = document.getElementById('filtersView')
-
-// non scatenare l'evento qui: i marker e i listener non sono ancora pronti
 
 // stampare i terremoti con magnitudo > 6
 const grandiTerremoti = processedData.filter(
@@ -173,17 +169,75 @@ const showListMenu = document.getElementById('showListMenu');
 const filtersView = document.getElementById('filtersView');
 const listView = document.getElementById('listView');
 
+
+// Funzioni per salvataggio/ripristino filtri
+function saveFiltersToLocalStorage() {
+    const form = document.getElementById('magFilterForm');
+    if (!form) return;
+    const filters = Array.from(form.querySelectorAll('input[name="magnitude"]')).map(cb => ({
+        value: cb.value,
+        checked: cb.checked
+    }));
+    localStorage.setItem('magFilters', JSON.stringify(filters));
+}
+
+function restoreFiltersFromLocalStorage() {
+    const form = document.getElementById('magFilterForm');
+    if (!form) return;
+    const filters = JSON.parse(localStorage.getItem('magFilters') || 'null');
+    if (!filters) return;
+    filters.forEach(f => {
+        const cb = form.querySelector(`input[name="magnitude"][value="${f.value}"]`);
+        if (cb) cb.checked = f.checked;
+    });
+    // trigger change per aggiornare la mappa
+    form.dispatchEvent(new Event('change'));
+}
+
+
 showFiltersMenu.addEventListener('click', () => {
     filtersView.style.display = '';
     listView.style.display = 'none';
+    const cardTitle = document.querySelector('.card-title');
+    if (cardTitle) cardTitle.textContent = 'Filtri Magnitudine';
 });
 
 showListMenu.addEventListener('click', () => {
     filtersView.style.display = 'none';
     listView.style.display = '';
-    sezioni["filtri"] = document.getElementById('filtersView')
-    document.getElementById('filtersView').innerHTML = '';
+    const cardTitle = document.querySelector('.card-title');
+    if (cardTitle) cardTitle.textContent = 'Elenco terremoti';
+    
+    saveFiltersToLocalStorage();
+
+    renderTerritoriList();
 });
+
+function financial(x) {
+  return Number.parseFloat(x).toFixed(2);
+}
+
+// Funzione per generare l'elenco dei territori
+function renderTerritoriList() {
+    const listView = document.getElementById('listView');
+    if (!listView) return;
+    listView.innerHTML = '';
+    const ul = document.createElement('ul');
+    ul.className = 'menu bg-base-100 rounded-box mt-4';
+    processedData.forEach((d, idx) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<div style="cursor:pointer"><strong>${d.place}</strong><br>
+            Magnitudine: ${financial(d.magnitudine)}<br>
+            Latitudine: ${financial(d.latitudine)}<br>
+            Longitudine: ${financial(d.longitudine)}<br>
+            Orario: ${d.time}</div>`;
+        li.addEventListener('click', () => {
+            map.setView([d.latitudine, d.longitudine], 8, { animate: true });
+        });
+        ul.appendChild(li);
+    });
+    listView.appendChild(ul);
+}
 
 document.addEventListener('DOMContentLoaded', function () {
     const showFiltersMenu = document.getElementById('showFiltersMenu');
