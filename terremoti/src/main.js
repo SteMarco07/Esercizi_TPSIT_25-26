@@ -28,6 +28,7 @@ const processedData = data.features.map(feature => {
     }
 })
 
+// Raggruppa i dati dei terremoti per magnitudine intera
 const creaCategorie = (data) => {
     const categories = {}
     data.forEach(d => {
@@ -43,6 +44,7 @@ const creaCategorie = (data) => {
 const categorie = creaCategorie(processedData)
 console.log(categorie)
 
+// Crea una checkbox per filtrare i terremoti per magnitudine
 const creaFiltro = (form, key) => {
     const checkbox = document.createElement('input')
     checkbox.type = 'checkbox'
@@ -56,6 +58,7 @@ const creaFiltro = (form, key) => {
     form.appendChild(checkbox)
 }
 
+// Crea tutti i filtri di magnitudine e li aggiunge al form
 const creaFiltri = (data) => {
     const form = document.getElementById("magFilterForm")
     form.innerHTML = ""
@@ -97,8 +100,6 @@ const creaFiltri = (data) => {
 
     form.appendChild(checkbox)
 
-
-
     return keys
 }
 
@@ -135,7 +136,7 @@ processedData.forEach(d => {
     markersByMag[key].push(circle)
 })
 
-// intercettare le modifiche alle checkbox: mostrare solo le magnitudini selezionate
+// Gestisce la visualizzazione dei marker sulla mappa in base ai filtri selezionati
 const form = document.getElementById('magFilterForm')
 form.addEventListener('change', () => {
     const checked = new Set(
@@ -151,11 +152,10 @@ form.addEventListener('change', () => {
     })
 })
 
-// gestire il reset del form: dopo il reset non mostrare nulla
+// Gestisce il reset dei filtri, rimuovendo tutti i marker dalla mappa
 form.addEventListener('reset', () => {
     setTimeout(() => {
         Object.values(markersByMag).flat().forEach(c => map.removeLayer(c))
-        // opzionale: triggerare change per aggiornare eventuali comportamenti collegati
         form.dispatchEvent(new Event('change'))
     }, 0)
 })
@@ -172,6 +172,7 @@ const listView = document.getElementById('listView');
 
 // Funzioni per salvataggio/ripristino filtri
 function saveFiltersToLocalStorage() {
+    // Salva lo stato dei filtri di magnitudine su localStorage
     const form = document.getElementById('magFilterForm');
     if (!form) return;
     const filters = Array.from(form.querySelectorAll('input[name="magnitude"]')).map(cb => ({
@@ -182,6 +183,7 @@ function saveFiltersToLocalStorage() {
 }
 
 function restoreFiltersFromLocalStorage() {
+    // Ripristina lo stato dei filtri di magnitudine da localStorage
     const form = document.getElementById('magFilterForm');
     if (!form) return;
     const filters = JSON.parse(localStorage.getItem('magFilters') || 'null');
@@ -190,7 +192,6 @@ function restoreFiltersFromLocalStorage() {
         const cb = form.querySelector(`input[name="magnitude"][value="${f.value}"]`);
         if (cb) cb.checked = f.checked;
     });
-    // trigger change per aggiornare la mappa
     form.dispatchEvent(new Event('change'));
 }
 
@@ -214,10 +215,11 @@ showListMenu.addEventListener('click', () => {
 });
 
 function financial(x) {
+  // Restituisce una stringa con due decimali per i valori numerici
   return Number.parseFloat(x).toFixed(2);
 }
 
-// Funzione per generare l'elenco dei territori
+// Genera l'elenco dei terremoti nella schermata elenco
 function renderTerritoriList() {
     const listView = document.getElementById('listView');
     if (!listView) return;
@@ -260,6 +262,9 @@ document.addEventListener('DOMContentLoaded', function () {
     showFiltersMenu.classList.add('active');
     filtersView.style.display = 'block';
     listView.style.display = 'none';
+
+    // Ripristina i filtri salvati solo una volta all'apertura della pagina
+    restoreFiltersFromLocalStorage();
 });
 
 console.log(processedData)
