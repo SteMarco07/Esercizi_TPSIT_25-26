@@ -11,6 +11,11 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 const response = await fetch("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson")
 const data = await response.json()
 
+function financial(x) {
+  // Restituisce una stringa con due decimali per i valori numerici
+  return Number.parseFloat(x).toFixed(2);
+}
+
 const processedData = data.features.map(feature => {
     const place = feature.properties.place
     const magnitudine = feature.properties.mag
@@ -121,15 +126,25 @@ const avgMagnitudine = grandiTerremoti.reduce(
 const markersByMag = {}
 processedData.forEach(d => {
     const key = String(Math.trunc(d.magnitudine))
+    const minRadius = 100; // raggio minimo visibile
+    const computedRadius = 500 * Math.pow(2.5, d.magnitudine);
+    // Colore dinamico in base alla magnitudine (da verde a rosso)
+    const minMag = 0;
+    const maxMag = 8; // puoi adattare in base ai dati
+    const percent = Math.min(1, Math.max(0, (d.magnitudine - minMag) / (maxMag - minMag)));
+    // Da 120 (verde) a 0 (rosso) nella scala HSL
+    const hue = 120 - 120 * percent;
+    const color = `hsl(${hue}, 100%, 40%)`;
+    const fillColor = `hsl(${hue}, 100%, 80%)`;
     const circle = L.circle([d.latitudine, d.longitudine], {
-        color: 'red',
-        fillColor: '#f03',
+        color: color,
+        fillColor: fillColor,
         fillOpacity: 0.5,
-        radius: 500 * Math.pow(2.5, d.magnitudine)
+        radius: Math.max(minRadius, computedRadius)
     }).bindPopup(
         d.place + '<br>' +
-        'Longitudine: ' + d.longitudine + '<br>' +
-        'Latitudine: ' + d.latitudine + '<br>' +
+        'Longitudine: ' + financial(d.longitudine) + '<br>' +
+        'Latitudine: ' + financial(d.latitudine) + '<br>' +
         'Orario: ' + d.time
     )
     if (!markersByMag[key]) markersByMag[key] = []
@@ -214,10 +229,7 @@ showListMenu.addEventListener('click', () => {
     renderTerritoriList();
 });
 
-function financial(x) {
-  // Restituisce una stringa con due decimali per i valori numerici
-  return Number.parseFloat(x).toFixed(2);
-}
+
 
 // Genera l'elenco dei terremoti nella schermata elenco
 function renderTerritoriList() {
