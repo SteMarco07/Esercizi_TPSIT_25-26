@@ -130,7 +130,7 @@ processedData.forEach(d => {
     const computedRadius = 500 * Math.pow(2.5, d.magnitudine);
     // Colore dinamico in base alla magnitudine (da verde a rosso)
     const minMag = 0;
-    const maxMag = 8; // puoi adattare in base ai dati
+    const maxMag = Math.max(...processedData.map(d => d.magnitudine));
     const percent = Math.min(1, Math.max(0, (d.magnitudine - minMag) / (maxMag - minMag)));
     // Da 120 (verde) a 0 (rosso) nella scala HSL
     const hue = 120 - 120 * percent;
