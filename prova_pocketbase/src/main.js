@@ -7,12 +7,18 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
+const pb = new PocketBase('http://127.0.0.1:8090');
+
+/*
 const response = await fetch("http://127.0.0.1:8090/api/collections/prova/records")
 const data = await response.json()
+*/
 
-const items = data.items
+const data = await pb.collection('prova').getFullList();
 
-items.map(i => {
+console.log(data)
+
+data.map(i => {
 
     var circle = L.circle([i.Position.lon, i.Position.lat], {
         color: 'red',
@@ -29,5 +35,4 @@ items.map(i => {
 
 })
 
-console.log(items)
 
