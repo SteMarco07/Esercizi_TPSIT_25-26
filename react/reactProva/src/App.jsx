@@ -1,17 +1,14 @@
+import { useEffect, useState } from "react";
 import ProfileCard from "./ProfileCard";
 import PocketBase from 'pocketbase';
 
 const pb = new PocketBase('http://127.0.0.1:8090');
 
-const userList = await pb.collection('ProfileCard').getFullList();
-
-console.log(userList)
-
-function CreateCards ({list}) {
+function CreateCards({ list }) {
   return list.map((element, pos) => (
     <ProfileCard
-      key={element.id}
-      name={element.name} 
+      key={pos}
+      name={element.name}
       nLike={element.like}
     />
   ));
@@ -19,10 +16,30 @@ function CreateCards ({list}) {
 
 
 function App() {
+
+  const [users, setUsers] = useState([])
+
+  useEffect(() => {
+    async function getUsers() {
+      const r = await fetch("http://127.0.0.1:8090/api/collections/ProfileCard/records")
+      const data = await r.json()
+
+      const listUtenti = data.items.map(item => ({
+        name: item.name,
+        like: item.like
+      }))
+      console.log("lista utenti:")
+      console.log(listUtenti)
+      setUsers(listUtenti)
+    }
+    getUsers()
+  }, [])
+
+
   return (
     <div className="container">
       <h1>Card Profilo Dinamica</h1>
-      <CreateCards list={userList} />
+      <CreateCards list={users} />
     </div>
   );
 }
