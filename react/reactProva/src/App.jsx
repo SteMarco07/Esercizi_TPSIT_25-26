@@ -1,17 +1,17 @@
 import ProfileCard from "./ProfileCard";
+import PocketBase from 'pocketbase';
 
-const userList = [
-  { nome: "Marco Bianchi", like: 25 },
-  { nome: "Sofia Rossi", like: 42 },
-  { nome: "Alessandro Verde", like: 18 },
-  { nome: "Giulia Ferrari", like: 67 },
-  { nome: "Lorenzo Marino", like: 33 }
-];
+const pb = new PocketBase('http://127.0.0.1:8090');
+
+const userList = await pb.collection('ProfileCard').getFullList();
+
+console.log(userList)
 
 function CreateCards ({list}) {
-  return list.map((element) => (
-    <ProfileCard 
-      name={element.nome} 
+  return list.map((element, pos) => (
+    <ProfileCard
+      key={element.id}
+      name={element.name} 
       nLike={element.like}
     />
   ));
