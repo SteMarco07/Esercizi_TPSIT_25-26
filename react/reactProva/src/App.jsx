@@ -9,7 +9,8 @@ function CreateCards({ list }) {
     <ProfileCard
       key={pos}
       name={element.name}
-      nLike={element.like}
+      like={element.like}
+      userId={element.id}
     />
   ));
 }
@@ -21,16 +22,10 @@ function App() {
 
   useEffect(() => {
     async function getUsers() {
-      const r = await fetch("http://127.0.0.1:8090/api/collections/ProfileCard/records")
-      const data = await r.json()
+      const listUsers = await pb.collection('ProfileCard').getFullList();
+      console.log(listUsers)
 
-      const listUtenti = data.items.map(item => ({
-        name: item.name,
-        like: item.like
-      }))
-      console.log("lista utenti:")
-      console.log(listUtenti)
-      setUsers(listUtenti)
+      setUsers(listUsers)
     }
     getUsers()
   }, [])
