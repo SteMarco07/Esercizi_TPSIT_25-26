@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";   //useState è un Hook di React, cioè una funzione speciale che ti
 // permette di aggiungere stato a un componente funzionale.
+import PocketBase from 'pocketbase';
+
+const pb = new PocketBase('http://127.0.0.1:8090');
 
 function ProfileCard({ name = "Mario Rossi", like = 0, userId }) {
   //Stato per il nome
@@ -7,13 +10,45 @@ function ProfileCard({ name = "Mario Rossi", like = 0, userId }) {
   const [id, setid] = useState(userId)
   const [userLike, setUserLike] = useState(like)
 
-  useEffect(()=> {
-    fetch(`http://127.0.0.1:8090/api/collections/ProfileCard/records/${id}`, {
-      method: "PATCH",
-      body: JSON.stringify({like:userLike})
-    })
 
-  }, [userLike])
+
+
+  useEffect(() => {
+
+    if (userLike === like) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        const data = {
+          "like": userLike
+        };
+        await pb.collection('ProfileCard').update(userId, data);
+      } catch (error) {
+        console.error('Errore aggiornamento like:', error);
+      }
+    }, 500); // Aspetta 500ms prima di inviare la richiesta
+
+    return () => clearTimeout(timer); // Cleanup del timer
+  }, [userLike, userId, like])
+
+
+  useEffect(() => {
+
+    if (nome === name) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        const data = {
+          "name": nome
+        };
+        await pb.collection('ProfileCard').update(userId, data);
+      } catch (error) {
+        console.error('Errore aggiornamento nome:', error);
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer); // Cleanup del timer
+  }, [nome, userId, name])
 
   // Handler per cambiare nome
   async function handleNameChange(event) {
@@ -23,10 +58,10 @@ function ProfileCard({ name = "Mario Rossi", like = 0, userId }) {
 
   // Handler per aggiungere like
   function handleLikeClick() {
-    setLikes(likesPrecedenti => likesPrecedenti + 1);
+    setUserLike(likesPrecedenti => likesPrecedenti + 1);
   }
 
-  
+
   function getData() {
     return {
       "name": name,

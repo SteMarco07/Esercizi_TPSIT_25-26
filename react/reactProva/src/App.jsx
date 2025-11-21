@@ -22,12 +22,15 @@ function App() {
 
   useEffect(() => {
     async function getUsers() {
-      const listUsers = await pb.collection('ProfileCard').getFullList();
-      console.log(listUsers)
-
-      setUsers(listUsers)
+      try {
+        const listUsers = await pb.collection('ProfileCard').getFullList();
+        console.log(listUsers);
+        setUsers(listUsers);
+      } catch (error) {
+        console.error('Errore nel caricamento utenti:', error);
+      }
     }
-    getUsers()
+    getUsers();
   }, [])
 
 
