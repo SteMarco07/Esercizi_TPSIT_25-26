@@ -1,34 +1,54 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import NavBar from './components/NavBar'
+
+
+function Grafici({ id }) {
+  return (
+    <section id={id} className="panel panel-grafici" aria-labelledby="grafici_title">
+      <h2 id="grafici_title">Grafici</h2>
+      <div className="panel-body" aria-live="polite">
+        {/* area placeholder per i grafici */}
+      </div>
+    </section>
+  )
+}
+
+function Elenco({ className }) {
+  return (
+    <section className={`panel panel-elenco ${className || ''}`} aria-labelledby="elenco_title">
+      <h2 id="elenco_title">Elenco</h2>
+      <div className="panel-body" aria-live="polite">
+        <ul>
+          <li>Elemento 1</li>
+          <li>Elemento 2</li>
+          <li>Elemento 3</li>
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [showGrafici, setShowGrafici] = useState(true)
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div id="div_pagina">
+
+      <NavBar showGrafici={showGrafici} setShowGrafici={setShowGrafici} />
+
+
+      <main id="main_section">
+        <Elenco className={showGrafici ? '' : 'expanded'} />
+        {showGrafici && <Grafici id="grafici_section" />}
+      </main>
+
+      <footer id="app_footer" aria-hidden="true">
+        {/* footer minimale */}
+      </footer>
+    </div>
   )
 }
 

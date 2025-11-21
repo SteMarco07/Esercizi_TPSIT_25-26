@@ -1,2 +1,80 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+.elemento_centrato {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+#div_pagina {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #1d222b; /* sfondo richiesto */
+    color: #e5e7eb; /* testo chiaro per contrasto */
+}
+
+#app_header {
+    padding: 16px;
+}
+
+#main_section {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    padding: 20px;
+    align-items: flex-start;
+    background-color: transparent;
+    flex: 1 1 auto;
+}
+
+.panel {
+    background: rgba(255,255,255,0.03);
+    border-radius: 6px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(255,255,255,0.04);
+}
+
+.panel-body {
+    min-height: 160px;
+    padding: 8px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 4px;
+}
+
+.panel-elenco {
+    flex: 1 1 60%;
+    min-width: 220px;
+}
+
+.panel-elenco.expanded {
+    flex: 1 1 100%;
+}
+
+.nav-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.panel-grafici {
+    flex: 1 1 40%;
+    min-width: 220px;
+}
+
+/* Responsive: column on narrow screens */
+@media (max-width: 720px) {
+    #main_section {
+        flex-direction: column;
+    }
+}
+
+#app_footer {
+    padding: 8px 16px;
+    background: none; /* usare il tema di daisyUI */
+}
