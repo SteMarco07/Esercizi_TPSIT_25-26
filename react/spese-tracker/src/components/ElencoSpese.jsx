@@ -37,7 +37,7 @@ function FormModal({ form, handleChange, handleSubmit, closeModal, errors = {} }
                         </div>
 
                         <div>
-                            <input name="costo" value={form.costo} onChange={handleChange} className="input input-bordered w-full" placeholder="Importo (es. 23.50)" inputMode="decimal" required />
+                            <input name="costo" value={form.costo} onChange={handleChange} className="input input-bordered w-full" placeholder="Importo (es. 23.50)" inputMode="decimal" type="number" step="0.01" min="0" required />
                             {errors.costo && <p className="text-error text-sm">{errors.costo}</p>}
                         </div>
 
@@ -75,7 +75,6 @@ export default function ElencoSpese({ id, className, listaSpese = [], onAdd }) {
         setLocalList(listaSpese)
     }, [listaSpese])
 
-    const openModal = () => setShowModal(true)
     const closeModal = () => {
         setShowModal(false)
         setForm({ titolo: '', descrizione: '', costo: '', data: '', ora: '' })
@@ -91,9 +90,15 @@ export default function ElencoSpese({ id, className, listaSpese = [], onAdd }) {
     const handleSubmit = (e) => {
         e.preventDefault()
         const errs = {}
-        if (!form.titolo || form.titolo.trim() === '') errs.titolo = 'Il titolo è obbligatorio.'
+
+        const titolo = form.titolo.trim()
+        const descrizione = form.descrizione.trim() || ''
+        const importo = Number(form.costo)
+
+        if (!titolo || titolo === '') errs.titolo = 'Il titolo è obbligatorio.'
         if (!form.costo || form.costo.toString().trim() === '') errs.costo = 'L\'importo è obbligatorio.'
-        else if (isNaN(Number(form.costo))) errs.costo = 'L\'importo deve essere un numero.'
+        else if (isNaN(importo)) errs.costo = 'L\'importo deve essere un numero.'
+        else if (importo < 0) errs.costo = 'L\'importo non può essere negativo.'
         if (!form.data || form.data.trim() === '') errs.data = 'La data è obbligatoria.'
         if (!form.ora || form.ora.trim() === '') errs.ora = 'L\'ora è obbligatoria.'
 
@@ -102,23 +107,30 @@ export default function ElencoSpese({ id, className, listaSpese = [], onAdd }) {
             return
         }
 
-        const titolo = form.titolo.trim()
-        const descrizione = form.descrizione?.trim() || ''
-        const costoNum = Number(form.costo)
-        const costo = Number.isFinite(costoNum) ? costoNum : 0
-        const data = `${form.data.trim()} ${form.ora.trim()}`
+        let data
+
+        try {
+            const [y, m, d] = form.data.trim().split('-').map(Number)
+            const [hh, mm] = form.ora.trim().split(':').map(Number)
+            const utcMs = Date.UTC(y, m - 1, d, hh || 0, mm || 0, 0, 0)
+            data = new Date(utcMs).toISOString().replace('T', ' ')
+        } catch (err) {
+            data = `${form.data.trim()} ${form.ora.trim()}:00.000Z`
+        }
 
         const newItem = {
-            id: Date.now().toString(),
             titolo,
             descrizione,
-            importo: costo,
+            importo,
             data,
         }
 
         setLocalList(list => [newItem, ...list])
-        // if parent wants to be notified, call onAdd if provided (keep existing behaviour)
-        if (typeof onAdd === 'function') onAdd(newItem)
+
+        if (typeof onAdd === 'function'){
+            onAdd(newItem)
+        } 
+    
         closeModal()
     }
 

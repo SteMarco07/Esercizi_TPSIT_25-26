@@ -27,6 +27,28 @@ function App() {
     console.log(spese)
   }, [])
 
+  // handler chiamato da ElencoSpese quando viene aggiunta una nuova spesa
+  const handleAdd = async (newItem) => {
+    try {
+
+      const record = {
+        titolo: newItem.titolo,
+        descrizione: newItem.descrizione || '',
+        importo: newItem.importo,
+        data: newItem.data,
+      }
+
+      console.log('Record da creare su PocketBase:', record);
+
+      const created = await pb.collection('spese').create(record)
+
+      setSpese(prev => [created, ...prev])
+    } catch (err) {
+      console.error('Errore nella creazione della spesa su PocketBase:', err)
+
+    }
+  }
+
   return (
     <div id="div_pagina">
 
@@ -34,7 +56,7 @@ function App() {
 
 
       <main id="main_section">
-        <ElencoSpese className={showGrafici ? '' : 'expanded'} listaSpese={spese}/>
+        <ElencoSpese className={showGrafici ? '' : 'expanded'} listaSpese={spese} onAdd={handleAdd} />
         {showGrafici && <ElencoGrafici id="grafici_section" />}
       </main>
 
