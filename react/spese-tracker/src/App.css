@@ -20,6 +20,27 @@
     padding: 16px;
 }
 
+.app-title {
+    margin: 0;
+    font-size: 1.9rem;
+    font-weight: 800;
+}
+
+.app-subtitle {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgba(229,231,235,0.82);
+}
+
+/* Section headings inside panels */
+.panel h2, .panel h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #f3f4f6;
+}
+
 #main_section {
     display: flex;
     flex-direction: row;
@@ -31,19 +52,34 @@
 }
 
 .panel {
-    background: rgba(255,255,255,0.03);
+    background: rgba(255,255,255,0.04);
     border-radius: 6px;
     padding: 12px;
     display: flex;
     flex-direction: column;
-    border: 1px solid rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.05);
 }
 
 .panel-body {
     min-height: 160px;
-    padding: 8px;
+    padding: 15px;
     background: rgba(255,255,255,0.02);
     border-radius: 4px;
+    
+}
+
+/* Spaziatura tra elementi della lista spese */
+.panel-elenco .panel-body ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* spazio verticale tra gli elementi */
+}
+
+.panel-elenco .panel-body ul li {
+    margin: 0; /* il gap gestisce la spaziatura */
 }
 
 .panel-elenco {
