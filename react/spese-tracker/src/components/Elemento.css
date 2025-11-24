@@ -24,6 +24,10 @@
     text-align: center;
 }
 
+.bottone{
+    width:  150px;
+}
+
 /* Make the card title larger and heavier */
 .card-title {
     font-weight: 800;

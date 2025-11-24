@@ -50,7 +50,8 @@ export default function Elemento({ id, titolo = "Titolo non presente", descrizio
 
                 <p>{descrizione}</p>
                 <div className="card-actions justify-end mt-4">
-                    <button className="btn btn-primary">Dettagli</button>
+                    <button className="btn btn-soft btn-outline btn-error bottone">Elimina</button>
+
                 </div>
             </div>
         </div>
