@@ -10,12 +10,25 @@ export default function Elemento({ id, titolo = "Titolo non presente", descrizio
             return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
         }
 
-        // Recognize DB datetime format: YYYY-MM-DD[ T]HH:MM:SS
+        // If it's a string coming from DB like "2025-11-13 12:00:00.000Z" or with T or space,
+        // prefer to extract components and format them directly so we DO NOT change the hour.
         if (typeof d === 'string') {
-            const m = d.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}):(\d{2}))?$/)
+            // Loose regex to capture date and optional time parts (and ignore ms / timezone)
+            const m = d.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?(?:Z|[+-]\d{2}:?\d{2})?)?$/)
             if (m) {
-                const [, Y, M, D, h = '0', min = '0', s = '0'] = m
-                const dt = new Date(Number(Y), Number(M) - 1, Number(D), Number(h), Number(min), Number(s))
+                const [, Y, M, D, h, min] = m
+                const pad = (n) => String(n).padStart(2, '0')
+                const datePart = `${pad(D)}/${pad(M)}/${Y}`
+                if (h !== undefined && min !== undefined) {
+                    return `${datePart} ${pad(h)}:${pad(min)}`
+                }
+                return datePart
+            }
+
+            // Fallback: try parsing as ISO but do not rely on its timezone-converted values
+            const isoLike = d.replace(' ', 'T')
+            const dt = new Date(isoLike)
+            if (!isNaN(dt.getTime())) {
                 return `${dt.toLocaleDateString()} ${dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
             }
         }
