@@ -12,6 +12,7 @@
   "dependencies": {
     "@nivo/calendar": "^0.99.0",
     "@nivo/core": "^0.99.0",
+    "@nivo/funnel": "^0.99.0",
     "@tailwindcss/vite": "^4.1.17",
     "pocketbase": "^0.26.3",
     "react": "^19.2.0",
