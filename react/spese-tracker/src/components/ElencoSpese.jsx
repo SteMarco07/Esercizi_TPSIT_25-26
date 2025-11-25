@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Elemento from './Elemento'
 
-function AggiungiSpese({ list = [] }) {
+function AggiungiSpese({ list = [], onRequestDelete }) {
 
     return list.map((element, pos) => (
         <Elemento
@@ -11,6 +11,7 @@ function AggiungiSpese({ list = [] }) {
             data={element.data}
             costo={element.importo}
             id={element.id}
+            onRequestDelete={onRequestDelete}
         />
     ));
 
@@ -24,7 +25,6 @@ function FormModal({ form, handleChange, handleSubmit, closeModal, errors = {} }
             <dialog id="modal_aggiunta" className="modal modal-bottom sm:modal-middle">
                 <div className="modal-box">
                     <h3 className="text-lg font-bold">Aggiungi una spesa</h3>
-                    <p className="py-4">Press ESC key or click the button below to close</p>
 
                     <form onSubmit={handleSubmit} className="space-y-3 mt-4">
                         <div>
@@ -41,12 +41,12 @@ function FormModal({ form, handleChange, handleSubmit, closeModal, errors = {} }
                             {errors.costo && <p className="text-error text-sm">{errors.costo}</p>}
                         </div>
 
-                        <div style={{flexDirection: 'row', display: 'flex', gap: '8px'}}>
-                            <div style={{flex: 1}}>
+                        <div style={{ flexDirection: 'row', display: 'flex', gap: '8px' }}>
+                            <div style={{ flex: 1 }}>
                                 <input type="date" name="data" value={form.data} onChange={handleChange} className="input input-bordered w-full" required />
                                 {errors.data && <p className="text-error text-sm">{errors.data}</p>}
                             </div>
-                            <div style={{flex: 1}}>
+                            <div style={{ flex: 1 }}>
                                 <input type="time" name="ora" value={form.ora} onChange={handleChange} className="input input-bordered w-full" required />
                                 {errors.ora && <p className="text-error text-sm">{errors.ora}</p>}
                             </div>
@@ -64,12 +64,39 @@ function FormModal({ form, handleChange, handleSubmit, closeModal, errors = {} }
     )
 }
 
-export default function ElencoSpese({ id, className, listaSpese = [], onAdd }) {
+function DeleteModal({ pendingDeleteId, setPendingDeleteId, setLocalList, onDelete }) {
+    return (
+        <dialog id="confirm_delete" className="modal modal-bottom sm:modal-middle">
+            <div className="modal-box">
+                <h3 className="font-bold text-lg">Conferma eliminazione</h3>
+                <p className="py-4">Sei sicuro di voler eliminare questa spesa? Questa operazione non è reversibile.</p>
+                <div className="modal-action">
+                    <button className="btn" onClick={() => { setPendingDeleteId(null); document.getElementById('confirm_delete')?.close(); }}>Annulla</button>
+                    <button className="btn btn-error" onClick={async () => {
+                        const idToDelete = pendingDeleteId
+                        try {
+                            await onDelete(idToDelete)
+                            setLocalList(prev => prev.filter(it => it.id !== idToDelete))
+                        } catch (err) {
+                            console.error('Eliminazione fallita:', err)
+                        } finally {
+                            setPendingDeleteId(null)
+                            document.getElementById('confirm_delete')?.close()
+                        }
+                    }}>Elimina</button>
+                </div>
+            </div>
+        </dialog>
+    )
+}
+
+export default function ElencoSpese({ id, className, listaSpese = [], onAdd, onDelete }) {
 
     const [localList, setLocalList] = useState(listaSpese)
     const [showModal, setShowModal] = useState(false)
     const [form, setForm] = useState({ titolo: '', descrizione: '', costo: '', data: '', ora: '' })
     const [errors, setErrors] = useState({})
+    const [pendingDeleteId, setPendingDeleteId] = useState(null)
 
     useEffect(() => {
         setLocalList(listaSpese)
@@ -127,10 +154,10 @@ export default function ElencoSpese({ id, className, listaSpese = [], onAdd }) {
 
         setLocalList(list => [newItem, ...list])
 
-        if (typeof onAdd === 'function'){
+        if (typeof onAdd === 'function') {
             onAdd(newItem)
-        } 
-    
+        }
+
         closeModal()
     }
 
@@ -139,7 +166,13 @@ export default function ElencoSpese({ id, className, listaSpese = [], onAdd }) {
             <h2 id="elenco_title">Elenco Spese</h2>
             <FormModal form={form} handleChange={handleChange} handleSubmit={handleSubmit} closeModal={closeModal} errors={errors} />
             <div className="panel-body" aria-live="polite">
-                <AggiungiSpese list={localList} />
+                <AggiungiSpese list={localList} onRequestDelete={(id) => {
+                    setPendingDeleteId(id)
+                    // open the confirm dialog
+                    setTimeout(() => document.getElementById('confirm_delete').showModal(), 0)
+                }} />
+
+                <DeleteModal pendingDeleteId={pendingDeleteId} setPendingDeleteId={setPendingDeleteId} setLocalList={setLocalList} onDelete={onDelete} />
             </div>
         </section>
     )

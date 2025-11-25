@@ -1,7 +1,7 @@
 import React from 'react'
 import './Elemento.css'
 
-export default function Elemento({ id, titolo = "Titolo non presente", descrizione = "Descrizione non presente", costo = 0.0, data = null }) {
+export default function Elemento({ id, titolo = "Titolo non presente", descrizione = "Descrizione non presente", costo = 0.0, data = null, onRequestDelete }) {
     const formatData = (d) => {
         if (!d) return '—'
 
@@ -50,7 +50,7 @@ export default function Elemento({ id, titolo = "Titolo non presente", descrizio
 
                 <p>{descrizione}</p>
                 <div className="card-actions justify-end mt-4">
-                    <button className="btn btn-soft btn-outline btn-error bottone">Elimina</button>
+                    <button className="btn btn-soft btn-outline btn-error bottone" onClick={() => { if (typeof onRequestDelete === 'function') onRequestDelete(id) }}>Elimina</button>
 
                 </div>
             </div>

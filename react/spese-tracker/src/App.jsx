@@ -49,6 +49,17 @@ function App() {
     }
   }
 
+  // handler per eliminare una spesa (chiamato da ElencoSpese)
+  const handleDelete = async (id) => {
+    try {
+      await pb.collection('spese').delete(id)
+      setSpese(prev => prev.filter(item => item.id !== id))
+    } catch (err) {
+      console.error('Errore durante l\'eliminazione su PocketBase:', err)
+      throw err
+    }
+  }
+
   return (
     <div id="div_pagina">
 
@@ -56,8 +67,8 @@ function App() {
 
 
       <main id="main_section">
-        <ElencoSpese className={showGrafici ? '' : 'expanded'} listaSpese={spese} onAdd={handleAdd} />
-        {showGrafici && <ElencoGrafici id="grafici_section" />}
+        <ElencoSpese className={showGrafici ? '' : 'expanded'} listaSpese={spese} onAdd={handleAdd} onDelete={handleDelete} />
+        {showGrafici && <ElencoGrafici id="grafici_section" listaSpese={spese} />}
       </main>
 
       <footer id="app_footer" aria-hidden="true">
