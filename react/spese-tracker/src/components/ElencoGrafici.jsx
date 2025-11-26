@@ -94,10 +94,11 @@ export default function ElencoGrafici({ id, listaSpese = [], outerTextColor = '#
     <section id={id} className="panel panel-grafici" aria-labelledby="grafici_title">
       <h2 id="grafici_title" style={{ color: outerTextColor }}>Analisi grafica delle spese</h2>
       <div className="panel-body" aria-live="polite">
-        <p style={{ color: outerTextColor }}><strong>Totale spese:</strong> {formatter.format(total)}</p>
+        <h3 style={{ color: outerTextColor }}><strong>Totale spese:</strong></h3>
+        <p style={{ color: outerTextColor }}>{formatter.format(total)}</p>
 
         <div style={{ height: calendarHeight }}>
-          <h3 style={{ margin: '0 0 8px 0', color: outerTextColor }}>Spesa totale per giorno</h3>
+          <h3 style={{ margin: '20px 0 4px 0', color: outerTextColor }}>Calendario delle spese</h3>
           <ResponsiveCalendar
             data={data}
             from={from}
@@ -149,8 +150,8 @@ export default function ElencoGrafici({ id, listaSpese = [], outerTextColor = '#
               afterSeparatorLength={100}
               afterSeparatorOffset={20}
               currentPartSizeExtension={10}
-              currentBorderWidth={20}
-              
+              currentBorderWidth={40}
+
             />
           </div>
         ) : (

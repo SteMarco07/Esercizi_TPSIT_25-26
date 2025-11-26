@@ -1,19 +1,11 @@
-@import "tailwindcss";
-@plugin "daisyui";
-
-.elemento_centrato {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 #div_pagina {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-color: #1d222b; /* sfondo richiesto */
-    color: #e5e7eb; /* testo chiaro per contrasto */
 }
 
 #app_header {
@@ -26,19 +18,11 @@
     font-weight: 800;
 }
 
-.app-subtitle {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 600;
-    color: rgba(229,231,235,0.82);
-}
-
 /* Section headings inside panels */
 .panel h2, .panel h3 {
     margin: 0 0 0.5rem 0;
     font-size: 1.25rem;
     font-weight: 700;
-    color: #f3f4f6;
 }
 
 #main_section {
@@ -52,36 +36,18 @@
 }
 
 .panel {
-    background: rgba(255,255,255,0.04);
     border-radius: 6px;
     padding: 12px;
     display: flex;
     flex-direction: column;
-    border: 1px solid rgba(255,255,255,0.05);
     height: 750px;
 }
 
 .panel-body {
     min-height: 160px;
     padding: 15px;
-    background: rgba(255,255,255,0.02);
     border-radius: 4px;
     overflow-y: auto;
-    
-}
-
-/* Spaziatura tra elementi della lista spese */
-.panel-elenco .panel-body ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem; /* spazio verticale tra gli elementi */
-}
-
-.panel-elenco .panel-body ul li {
-    margin: 0; /* il gap gestisce la spaziatura */
 }
 
 .panel-elenco {
@@ -116,3 +82,16 @@
     padding: 8px 16px;
     background: none; /* usare il tema di daisyUI */
 }
+
+[data-theme="light"] #div_pagina {
+  background-color: #ececec;
+}
+
+[data-theme="dark"] #div_pagina {
+  background-color: #1A2B3C;
+}
+
+[data-theme="dark"] .panel {
+  background-color: #283E54;
+}
+
