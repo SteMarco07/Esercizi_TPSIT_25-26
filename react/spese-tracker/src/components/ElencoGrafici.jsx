@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react'
 import { ResponsiveCalendar } from '@nivo/calendar'
 import { ResponsiveFunnel } from '@nivo/funnel'
+import '../App.css'
+import './Elemento.css'
 
 function formatDateKey(d) {
   if (!d) return null
@@ -14,9 +16,8 @@ function formatDateKey(d) {
   return m ? m[1] : null
 }
 
-export default function ElencoGrafici({ id, listaSpese = [], outerTextColor = '#ffffff', innerTextColor = '#111827', textColor }) {
-  // backward compatibility: if user still passes `textColor`, treat it as inner text color
-  const inner = textColor || innerTextColor
+export default function ElencoGrafici({ id, listaSpese = [] }) {
+
   const formatter = new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' })
 
   // aggregate amounts per day and prepare data for Nivo
@@ -92,13 +93,15 @@ export default function ElencoGrafici({ id, listaSpese = [], outerTextColor = '#
 
   return (
     <section id={id} className="panel panel-grafici" aria-labelledby="grafici_title">
-      <h2 id="grafici_title" style={{ color: outerTextColor }}>Analisi grafica delle spese</h2>
+      <h2 id="grafici_title">Analisi grafica delle spese</h2>
       <div className="panel-body" aria-live="polite">
-        <h3 style={{ color: outerTextColor }}><strong>Totale spese:</strong></h3>
-        <p style={{ color: outerTextColor }}>{formatter.format(total)}</p>
+        <h3><strong>Totale spese:</strong></h3>
+        <p>{formatter.format(total)}</p>
 
-        <div style={{ height: calendarHeight }}>
-          <h3 style={{ margin: '20px 0 4px 0', color: outerTextColor }}>Calendario delle spese</h3>
+
+
+        <div className="card bg-base-200 shadow-xl image-full scritta carta p-5" style={{ height: calendarHeight }}>
+          <h3 >Calendario delle spese</h3>
           <ResponsiveCalendar
             data={data}
             from={from}
@@ -110,53 +113,65 @@ export default function ElencoGrafici({ id, listaSpese = [], outerTextColor = '#
             dayBorderWidth={2}
             dayBorderColor="#ffffff"
             theme={{
-              textColor: inner,
-              tooltip: {
-                container: {
-                  background: '#fff',
-                  color: inner,
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.12)'
-                }
-              },
+              textColor: 'currentColor',
               labels: {
                 text: {
-                  fill: outerTextColor
+                  fill: 'currentColor'
                 }
               }
             }}
-            tooltip={({ day, value }) => (
-              <div style={{ padding: 8, background: '#fff', border: '1px solid #ddd', color: inner }}>
-                <strong>{day}</strong>
-                <div>{formatter.format(value || 0)}</div>
+            tooltip={({ day, value, color }) => (
+              <div className="scritta-tooltip">
+                <div className="scritta-tooltip-day">{day}</div>
+                <div className="scritta-tooltip-value">{formatter.format(value || 0)}</div>
               </div>
             )}
 
           />
         </div>
 
-        {/* Funnel: total spent per hour */}
-        {hourData && hourData.length > 0 ? (
-          <div style={{ height: 260, marginTop: 20 }}>
-            <h3 style={{ margin: '0 0 8px 0', color: outerTextColor }}>Spesa totale per ora</h3>
-            <ResponsiveFunnel
-              data={hourData}
-              margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-              valueFormat=">-.4s"
-              colors={{ scheme: 'spectral' }}
-              borderWidth={20}
-              labelColor={{ from: 'color', modifiers: [['darker', 3]] }}
-              beforeSeparatorLength={100}
-              beforeSeparatorOffset={20}
-              afterSeparatorLength={100}
-              afterSeparatorOffset={20}
-              currentPartSizeExtension={10}
-              currentBorderWidth={40}
 
-            />
-          </div>
-        ) : (
-          <p style={{ color: outerTextColor, marginTop: 12 }}>Nessuna spesa registrata per ora</p>
-        )}
+        <div className="card bg-base-200 shadow-xl image-full scritta carta p-5">
+          {/* Funnel: total spent per hour */}
+          {hourData && hourData.length > 0 ? (
+            <div style={{ height: 260, margin: 20 }}>
+              <h3 style={{ margin: '0 0 8px 0' }}>Spesa totale per ora</h3>
+              <ResponsiveFunnel
+                data={hourData}
+                margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                valueFormat=">-.4s"
+                colors={{ scheme: 'spectral' }}
+                borderWidth={20}
+                labelColor={{ from: 'color', modifiers: [['darker', 3]] }}
+                beforeSeparatorLength={100}
+                beforeSeparatorOffset={20}
+                afterSeparatorLength={100}
+                afterSeparatorOffset={20}
+                currentPartSizeExtension={10}
+                currentBorderWidth={40}
+                tooltip={(node) => {
+                  // prefer formattedValue from node.data if available
+                  const d = node?.data ?? node
+                  const label = d?.label ?? d?.id ?? ''
+                  const formatted = d?.formattedValue ?? d?.formatted ?? null
+                  const raw = d?.value ?? d?.rawValue ?? 0
+                  const display = (formatted !== null && formatted !== undefined)
+                    ? formatted
+                    : formatter.format(Number(raw) || 0)
+                  return (
+                    <div className="scritta-tooltip funnel-tooltip">
+                      <div className="scritta-tooltip-day">{label}</div>
+                      <div className="scritta-tooltip-value">{display}</div>
+                    </div>
+                  )
+                }}
+
+              />
+            </div>
+          ) : (
+            <p style={{ marginTop: 12 }}>Nessuna spesa registrata per ora</p>
+          )}
+        </div>
 
       </div>
     </section>

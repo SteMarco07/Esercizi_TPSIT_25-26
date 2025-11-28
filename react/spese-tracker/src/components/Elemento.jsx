@@ -1,5 +1,6 @@
 import React from 'react'
 import './Elemento.css'
+import '../App.css'
 
 export default function Elemento({ id, titolo = "Titolo non presente", descrizione = "Descrizione non presente", costo = 0.0, data = null, onRequestDelete }) {
     const formatData = (d) => {
@@ -41,16 +42,16 @@ export default function Elemento({ id, titolo = "Titolo non presente", descrizio
         <div className="card bg-base-200 shadow-xl image-full transform hover:-translate-y-2 transition-transform duration-300 carta">
             <div className="card-body">
                 <div className="card-header-row">
-                    <h3 className="card-title text-2xl">{titolo}</h3>
+                    <h3 className="card-title text-2xl scritta">{titolo}</h3>
                     <div className="meta-group" aria-hidden="true">
                         <div className="dettaglio" aria-label={`Data: ${formatData(data)}`}>{formatData(data)}</div>
                         <div className="dettaglio" aria-label={`Costo: €${Number(costo).toFixed(2)}`}>€{Number(costo).toFixed(2)}</div>
                     </div>
                 </div>
 
-                <p>{descrizione}</p>
+                <p className='scritta'>{descrizione}</p>
                 <div className="card-actions justify-end mt-4">
-                    <button className="btn btn-soft btn-outline btn-error bottone" onClick={() => { if (typeof onRequestDelete === 'function') onRequestDelete(id) }}>Elimina</button>
+                    <button className="btn btn-soft btn-error bottone" onClick={() => { if (typeof onRequestDelete === 'function') onRequestDelete(id) }}>Elimina</button>
 
                 </div>
             </div>

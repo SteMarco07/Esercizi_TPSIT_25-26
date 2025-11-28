@@ -1,7 +1,6 @@
 .carta {
     width: 95%;
     margin: auto;
-    background: rgba(255,255,255,0.02);
     margin-bottom: 1rem;
 }
 
@@ -15,17 +14,15 @@
 
 .dettaglio {
     width: 150px;
-    background: rgba(255,255,255,0.04);
     padding: 0.25rem 0.6rem;
     border-radius: 8px;
     font-weight: 700;
-    color: #e5e7eb;
     min-width: 5.5rem;
     text-align: center;
 }
 
-.bottone{
-    width:  150px;
+.bottone {
+    width: 150px;
 }
 
 /* Make the card title larger and heavier */
@@ -52,14 +49,32 @@
     .meta-group {
         align-items: flex-start;
     }
+
     .data {
         text-align: left;
     }
 }
 
 [data-theme="light"] {
-  .carta{
     
-  }
+
+    .carta {
+        background-color: #ececec;
+    }
+
+    .dettaglio {
+        color: #000000;
+        background: #b8b8b8cc;
+    }
 }
 
+[data-theme="dark"] {
+    .carta {
+        background-color: #2d4164;
+    }
+
+    .dettaglio {
+        color: #e5e7eb;
+        background-color: #00000050;
+    }
+}

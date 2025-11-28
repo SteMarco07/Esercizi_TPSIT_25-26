@@ -140,9 +140,13 @@ export default function ElencoSpese({ id, className, listaSpese = [], onAdd, onD
             const [y, m, d] = form.data.trim().split('-').map(Number)
             const [hh, mm] = form.ora.trim().split(':').map(Number)
             const utcMs = Date.UTC(y, m - 1, d, hh || 0, mm || 0, 0, 0)
-            data = new Date(utcMs).toISOString().replace('T', ' ')
+            // send proper ISO 8601 (RFC3339) timestamp expected by PocketBase
+            data = new Date(utcMs).toISOString()
         } catch (err) {
-            data = `${form.data.trim()} ${form.ora.trim()}:00.000Z`
+            // fallback to an ISO-like string if parsing fails
+            const datePart = form.data.trim()
+            const timePart = form.ora.trim() || '00:00'
+            data = `${datePart}T${timePart}:00.000Z`
         }
 
         const newItem = {
