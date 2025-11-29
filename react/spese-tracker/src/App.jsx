@@ -11,6 +11,25 @@ const pb = new PocketBase('http://127.0.0.1:8090');
 function App() {
   const [showGrafici, setShowGrafici] = useState(true)
 
+  // theme persistence: initialize from localStorage (fallback 'dark')
+  const [theme, setTheme] = useState(() => {
+    try {
+      return localStorage.getItem('theme') || 'dark'
+    } catch (e) {
+      return 'dark'
+    }
+  })
+
+  // apply theme to document and persist on change
+  useEffect(() => {
+    try {
+      document.documentElement.setAttribute('data-theme', theme)
+      localStorage.setItem('theme', theme)
+    } catch (e) {
+      console.error('Unable to persist theme', e)
+    }
+  }, [theme])
+
   const [spese, setSpese] = useState([])
 
   useEffect(() => {
@@ -63,7 +82,7 @@ function App() {
   return (
     <div id="div_pagina">
 
-      <NavBar showGrafici={showGrafici} setShowGrafici={setShowGrafici} />
+      <NavBar theme={theme} setTheme={setTheme} showGrafici={showGrafici} setShowGrafici={setShowGrafici} />
 
 
       <main id="main_section">

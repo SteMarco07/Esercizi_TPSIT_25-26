@@ -1,9 +1,10 @@
 import React from 'react'
 
-export default function NavBar({ showGrafici, setShowGrafici }) {
+export default function NavBar({ theme, setTheme, showGrafici, setShowGrafici }) {
   function toggleTheme(e) {
-    const theme = e.target.checked ? 'dark' : 'light'
-    document.documentElement.setAttribute('data-theme', theme)
+    const next = e.target.checked ? 'dark' : 'light'
+    // delegate persistence to App (setTheme will persist via effect)
+    if (typeof setTheme === 'function') setTheme(next)
   }
 
   return (
@@ -16,7 +17,7 @@ export default function NavBar({ showGrafici, setShowGrafici }) {
 
         <div>
           <label className="swap swap-rotate">
-            <input type="checkbox" className="theme-controller" onChange={toggleTheme} />
+            <input type="checkbox" className="theme-controller" checked={theme === 'dark'} onChange={toggleTheme} />
 
             <svg
               className="swap-off h-10 w-10 fill-current"
