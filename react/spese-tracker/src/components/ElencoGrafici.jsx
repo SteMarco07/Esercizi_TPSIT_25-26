@@ -85,10 +85,12 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
       sums[hour] += val
     })
 
-    // map to objects with { id, value, label } and keep only hours with value > 0
+    // map to objects with { id, value, label }, keep only hours with value > 0,
+    // and order the result by hour (ascending)
     return sums
       .map((v, i) => ({ id: `hour_${String(i).padStart(2, '0')}`, value: Math.round(v * 100) / 100, label: `${String(i).padStart(2, '0')}:00` }))
-      .filter(x => x.value > 0)
+        .filter(x => x.value > 0)
+        .sort((a, b) => parseInt(b.label.slice(0, 2), 10) - parseInt(a.label.slice(0, 2), 10))
   }, [listaSpese])
 
   return (
@@ -101,41 +103,46 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
 
 
         <div className="card bg-base-200 shadow-xl image-full scritta carta p-5" style={{ height: calendarHeight }}>
-          <h3 >Calendario delle spese</h3>
-          <ResponsiveCalendar
-            data={data}
-            from={from}
-            to={to}
-            emptyColor="#eeeeee"
-            margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
-            yearSpacing={20}
-            monthBorderColor="#979797b0"
-            dayBorderWidth={2}
-            dayBorderColor="#ffffff"
-            theme={{
-              textColor: 'currentColor',
-              labels: {
-                text: {
-                  fill: 'currentColor'
+          <h3>Calendario delle spese</h3>
+          {data && data.length > 0 ? (
+            <ResponsiveCalendar
+              data={data}
+              from={from}
+              to={to}
+              emptyColor="#eeeeee"
+              margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
+              yearSpacing={20}
+              monthBorderColor="#979797b0"
+              dayBorderWidth={2}
+              dayBorderColor="#ffffff"
+              theme={{
+                textColor: 'currentColor',
+                labels: {
+                  text: {
+                    fill: 'currentColor'
+                  }
                 }
-              }
-            }}
-            tooltip={({ day, value, color }) => (
-              <div className="scritta-tooltip">
-                <div className="scritta-tooltip-day">{day}</div>
-                <div className="scritta-tooltip-value">{formatter.format(value || 0)}</div>
-              </div>
-            )}
-
-          />
+              }}
+              tooltip={({ day, value, color }) => (
+                <div className="scritta-tooltip">
+                  <div className="scritta-tooltip-day">{day}</div>
+                  <div className="scritta-tooltip-value">{formatter.format(value || 0)}</div>
+                </div>
+              )}
+            />
+          ) : (
+            <div style={{ padding: 12 }}>
+              <p style={{ margin: 0 }}>Nessun dato disponibile per i grafici</p>
+            </div>
+          )}
         </div>
 
 
         <div className="card bg-base-200 shadow-xl image-full scritta carta p-5">
+          <h3 style={{ margin: '0 0 8px 0' }}>Spesa totale per ora</h3>
           {/* Funnel: total spent per hour */}
           {hourData && hourData.length > 0 ? (
             <div style={{ height: 260, margin: 20 }}>
-              <h3 style={{ margin: '0 0 8px 0' }}>Spesa totale per ora</h3>
               <ResponsiveFunnel
                 data={hourData}
                 margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
@@ -149,19 +156,11 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
                 afterSeparatorOffset={20}
                 currentPartSizeExtension={10}
                 currentBorderWidth={40}
-                tooltip={(node) => {
-                  // prefer formattedValue from node.data if available
-                  const d = node?.data ?? node
-                  const label = d?.label ?? d?.id ?? ''
-                  const formatted = d?.formattedValue ?? d?.formatted ?? null
-                  const raw = d?.value ?? d?.rawValue ?? 0
-                  const display = (formatted !== null && formatted !== undefined)
-                    ? formatted
-                    : formatter.format(Number(raw) || 0)
+                tooltip={({part}) => {
                   return (
                     <div className="scritta-tooltip funnel-tooltip">
-                      <div className="scritta-tooltip-day">{label}</div>
-                      <div className="scritta-tooltip-value">{display}</div>
+                      <div className="scritta-tooltip-day">{part.data.label}</div>
+                      <div className="scritta-tooltip-value">{part.data.value}</div>
                     </div>
                   )
                 }}
