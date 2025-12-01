@@ -51,7 +51,7 @@ export default function Elemento({ id, titolo = "Titolo non presente", descrizio
 
                 <p className='scritta'>{descrizione}</p>
                 <div className="card-actions justify-end mt-4">
-                    <button className="btn btn-soft btn-error bottone" onClick={() => { if (typeof onRequestDelete === 'function') onRequestDelete(id) }}>Elimina</button>
+                    <button className="btn btn-ouline btn-error bottone" onClick={() => { if (typeof onRequestDelete === 'function') onRequestDelete(id) }}>Elimina</button>
 
                 </div>
             </div>

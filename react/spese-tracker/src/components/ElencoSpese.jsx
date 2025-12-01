@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import Elemento from './Elemento'
 
 function AggiungiSpese({ list = [], onRequestDelete }) {
 
     return list.map((element, pos) => (
         <Elemento
-            key={pos}
+            key={element.id ?? pos}
             titolo={element.titolo}
             descrizione={element.descrizione}
             data={element.data}
@@ -92,14 +92,43 @@ function DeleteModal({ pendingDeleteId, setPendingDeleteId, setLocalList, onDele
 
 export default function ElencoSpese({ id, className, listaSpese = [], onAdd, onDelete }) {
 
-    const [localList, setLocalList] = useState(listaSpese)
+    const [localList, setLocalList] = useState(() => {
+        try {
+            return [...(listaSpese || [])].sort((a, b) => {
+                const ta = a && a.data ? Date.parse(a.data) : 0
+                const tb = b && b.data ? Date.parse(b.data) : 0
+                return tb - ta // newest first
+            })
+        } catch (err) {
+            return listaSpese
+        }
+    })
     const [showModal, setShowModal] = useState(false)
     const [form, setForm] = useState({ titolo: '', descrizione: '', costo: '', data: '', ora: '' })
     const [errors, setErrors] = useState({})
     const [pendingDeleteId, setPendingDeleteId] = useState(null)
 
+    // filter state
+    const [filterQuery, setFilterQuery] = useState('')
+    const [filterFrom, setFilterFrom] = useState('')
+    const [filterTo, setFilterTo] = useState('')
+    const [filterMin, setFilterMin] = useState('')
+    const [filterMax, setFilterMax] = useState('')
+    // visibility toggles for add and filters sections
+    const [showAddSection, setShowAddSection] = useState(true)
+    const [showFilterSection, setShowFilterSection] = useState(true)
+
     useEffect(() => {
-        setLocalList(listaSpese)
+        try {
+            const sorted = [...(listaSpese || [])].sort((a, b) => {
+                const ta = a && a.data ? Date.parse(a.data) : 0
+                const tb = b && b.data ? Date.parse(b.data) : 0
+                return tb - ta // newest first
+            })
+            setLocalList(sorted)
+        } catch (err) {
+            setLocalList(listaSpese)
+        }
     }, [listaSpese])
 
     const closeModal = () => {
@@ -165,16 +194,87 @@ export default function ElencoSpese({ id, className, listaSpese = [], onAdd, onD
         closeModal()
     }
 
+    // derive filtered list from localList
+    const filteredList = useMemo(() => {
+        try {
+            const q = String(filterQuery || '').trim().toLowerCase()
+            const fromTs = filterFrom ? Date.parse(filterFrom) : null
+            const toTs = filterTo ? Date.parse(filterTo) : null
+            const minVal = filterMin !== '' ? Number(filterMin) : null
+            const maxVal = filterMax !== '' ? Number(filterMax) : null
+
+            return (localList || []).filter(item => {
+                if (!item) return false
+                // text match on titolo or descrizione
+                if (q) {
+                    const t = String(item.titolo || '').toLowerCase()
+                    const d = String(item.descrizione || '').toLowerCase()
+                    if (!t.includes(q) && !d.includes(q)) return false
+                }
+                // date range filter (item.data may be ISO string)
+                if ((fromTs || toTs) && item.data) {
+                    const it = Date.parse(item.data)
+                    if (fromTs && isFinite(fromTs) && it < fromTs) return false
+                    if (toTs && isFinite(toTs) && it > (toTs + 24 * 60 * 60 * 1000 - 1)) return false
+                }
+                // amount range
+                const val = Number(item.importo ?? item.costo ?? 0)
+                if (minVal !== null && !isNaN(minVal) && val < minVal) return false
+                if (maxVal !== null && !isNaN(maxVal) && val > maxVal) return false
+
+                return true
+            })
+        } catch (err) {
+            return localList
+        }
+    }, [localList, filterQuery, filterFrom, filterTo, filterMin, filterMax])
+
     return (
         <section id="elenco_section" className={`panel panel-elenco ${className || ''}`} aria-labelledby="elenco_title">
             <h2 id="elenco_title">Elenco Spese</h2>
-            <FormModal form={form} handleChange={handleChange} handleSubmit={handleSubmit} closeModal={closeModal} errors={errors} />
-            <div className="panel-body" aria-live="polite">
-                <AggiungiSpese list={localList} onRequestDelete={(id) => {
-                    setPendingDeleteId(id)
-                    // open the confirm dialog
-                    setTimeout(() => document.getElementById('confirm_delete').showModal(), 0)
-                }} />
+
+            {/* toggles for showing/hiding sections */}
+            <div className='card bg-base-200 shadow-xl image-full scritta carta p-5'>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+                    <button className={`btn btn-sm ${showAddSection ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setShowAddSection(s => !s)}>
+                        {showAddSection ? 'Nascondi Aggiunta' : 'Mostra Aggiunta'}
+                    </button>
+                    <button className={`btn btn-sm ${showFilterSection ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setShowFilterSection(s => !s)}>
+                        {showFilterSection ? 'Nascondi Filtri' : 'Mostra Filtri'}
+                    </button>
+                </div>
+            </div>
+
+
+            {showAddSection && (
+                <div className="card bg-base-200 shadow-xl image-full scritta carta p-5">
+                    <FormModal form={form} handleChange={handleChange} handleSubmit={handleSubmit} closeModal={closeModal} errors={errors} />
+                </div>
+            )}
+
+            {showFilterSection && (
+                <div className="card bg-base-200 shadow-xl image-full scritta carta p-5" >
+                    {/* Filters */}
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        <input className="input input-sm input-bordered" placeholder="Cerca titolo o descrizione" value={filterQuery} onChange={e => setFilterQuery(e.target.value)} />
+                        <input className="input input-sm input-bordered" type="date" value={filterFrom} onChange={e => setFilterFrom(e.target.value)} />
+                        <input className="input input-sm input-bordered" type="date" value={filterTo} onChange={e => setFilterTo(e.target.value)} />
+                        <input className="input input-sm input-bordered" type="number" placeholder="Min importo" value={filterMin} onChange={e => setFilterMin(e.target.value)} step="0.01" />
+                        <input className="input input-sm input-bordered" type="number" placeholder="Max importo" value={filterMax} onChange={e => setFilterMax(e.target.value)} step="0.01" />
+                        <button className="btn btn-sm" onClick={() => { setFilterQuery(''); setFilterFrom(''); setFilterTo(''); setFilterMin(''); setFilterMax('') }}>Azzera</button>
+                    </div>
+                </div>
+            )}
+
+            <div className="panel-body" aria-live="polite" style={{ display: 'flex', flexDirection: 'column' }}>
+
+                <div className="lista-wrapper" style={{ flex: '1 1 auto', overflowY: 'auto' }}>
+                    <AggiungiSpese list={filteredList} onRequestDelete={(id) => {
+                        setPendingDeleteId(id)
+                        // open the confirm dialog
+                        setTimeout(() => document.getElementById('confirm_delete').showModal(), 0)
+                    }} />
+                </div>
 
                 <DeleteModal pendingDeleteId={pendingDeleteId} setPendingDeleteId={setPendingDeleteId} setLocalList={setLocalList} onDelete={onDelete} />
             </div>

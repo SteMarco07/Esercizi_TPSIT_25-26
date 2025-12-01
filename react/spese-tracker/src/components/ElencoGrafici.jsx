@@ -62,10 +62,11 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
       const days = Math.max(1, Math.ceil((end - start) / msPerDay))
       const weeks = Math.max(1, Math.ceil(days / 7))
 
-      // Derive height: base + per-week increment. Clamp to sensible limits.
-      const base = 100
-      const perWeek = 5 // pixels per week to make rows larger with more weeks
-      const height = Math.min(Math.max(base + weeks * perWeek, 240), 500)
+      // Derive height: base + per-week increment. Use larger per-week
+      // step so calendar cells don't get too small and text doesn't overlap.
+      const base = 160
+      const perWeek = 18 // pixels per week to create taller rows for readability
+      const height = Math.min(Math.max(base + weeks * perWeek, 300), 900)
       return height
     } catch (err) {
       return 320
@@ -89,16 +90,19 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
     // and order the result by hour (ascending)
     return sums
       .map((v, i) => ({ id: `hour_${String(i).padStart(2, '0')}`, value: Math.round(v * 100) / 100, label: `${String(i).padStart(2, '0')}:00` }))
-        .filter(x => x.value > 0)
-        .sort((a, b) => parseInt(b.label.slice(0, 2), 10) - parseInt(a.label.slice(0, 2), 10))
+      .filter(x => x.value > 0)
+      .sort((a, b) => parseInt(b.label.slice(0, 2), 10) - parseInt(a.label.slice(0, 2), 10))
   }, [listaSpese])
 
   return (
     <section id={id} className="panel panel-grafici" aria-labelledby="grafici_title">
       <h2 id="grafici_title">Analisi grafica delle spese</h2>
       <div className="panel-body" aria-live="polite">
-        <h3><strong>Totale spese:</strong></h3>
-        <p>{formatter.format(total)}</p>
+
+        <div className="card bg-base-200 shadow-xl image-full scritta carta p-5 mb-5">
+          <h3><strong>Totale spese:</strong></h3>
+          <p style={{marginTop: 40}}>{formatter.format(total)}</p>
+        </div>
 
 
 
@@ -138,7 +142,7 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
         </div>
 
 
-        <div className="card bg-base-200 shadow-xl image-full scritta carta p-5">
+        <div className="card bg-base-200 shadow-xl image-full scritta carta p-5" style={{ marginTop: 12 }}>
           <h3 style={{ margin: '0 0 8px 0' }}>Spesa totale per ora</h3>
           {/* Funnel: total spent per hour */}
           {hourData && hourData.length > 0 ? (
@@ -156,7 +160,7 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
                 afterSeparatorOffset={20}
                 currentPartSizeExtension={10}
                 currentBorderWidth={40}
-                tooltip={({part}) => {
+                tooltip={({ part }) => {
                   return (
                     <div className="scritta-tooltip funnel-tooltip">
                       <div className="scritta-tooltip-day">{part.data.label}</div>
