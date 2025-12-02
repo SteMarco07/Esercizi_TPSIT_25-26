@@ -11,11 +11,22 @@ export default function Elemento({ id, titolo = "Titolo non presente", descrizio
             return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
         }
 
-        // If it's a string coming from DB like "2025-11-13 12:00:00.000Z" or with T or space,
-        // prefer to extract components and format them directly so we DO NOT change the hour.
+        // If it's a string coming from DB like "2025-11-13T12:00:00.000Z" or with space,
+        // prefer to parse ISO timestamps and present them in the browser's local time
         if (typeof d === 'string') {
-            // Loose regex to capture date and optional time parts (and ignore ms / timezone)
-            const m = d.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?(?:Z|[+-]\d{2}:?\d{2})?)?$/)
+            const isoLike = d.replace(' ', 'T')
+
+            // If the string contains timezone info (Z or +hh:mm/-hh:mm), parse and
+            // display in local time so users see the expected local hour.
+            if (/[Zz]|[+-]\d{2}:?\d{2}$/.test(d)) {
+                const dt = new Date(isoLike)
+                if (!isNaN(dt.getTime())) {
+                    return `${dt.toLocaleDateString()} ${dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                }
+            }
+
+            // Loose regex to capture date and optional time parts (no timezone)
+            const m = d.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?/) 
             if (m) {
                 const [, Y, M, D, h, min] = m
                 const pad = (n) => String(n).padStart(2, '0')
@@ -26,8 +37,7 @@ export default function Elemento({ id, titolo = "Titolo non presente", descrizio
                 return datePart
             }
 
-            // Fallback: try parsing as ISO but do not rely on its timezone-converted values
-            const isoLike = d.replace(' ', 'T')
+            // Last resort: try parsing as ISO and display local
             const dt = new Date(isoLike)
             if (!isNaN(dt.getTime())) {
                 return `${dt.toLocaleDateString()} ${dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`

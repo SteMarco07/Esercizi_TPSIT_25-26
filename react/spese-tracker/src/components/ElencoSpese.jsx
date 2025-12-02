@@ -17,10 +17,10 @@ function AggiungiSpese({ list = [], onRequestDelete }) {
 
 }
 
-function FormModal({ form, handleChange, handleSubmit, closeModal, errors = {} }) {
+function FormModal({ form, handleChange, handleSubmit, closeModal, errors = {}, openModal }) {
     return (
         <>
-            <input type="text" placeholder="Aggiungi una spesa" className="input input-bordered w-full mb-4" onClick={() => document.getElementById('modal_aggiunta').showModal()} />
+            <input type="text" placeholder="Aggiungi una spesa" className="input input-bordered w-full mb-4" onClick={openModal} />
 
             <dialog id="modal_aggiunta" className="modal modal-bottom sm:modal-middle">
                 <div className="modal-box">
@@ -43,11 +43,11 @@ function FormModal({ form, handleChange, handleSubmit, closeModal, errors = {} }
 
                         <div style={{ flexDirection: 'row', display: 'flex', gap: '8px' }}>
                             <div style={{ flex: 1 }}>
-                                <input type="date" name="data" value={form.data} onChange={handleChange} className="input input-bordered w-full" required />
-                                {errors.data && <p className="text-error text-sm">{errors.data}</p>}
+                                    <input type="date" name="data" value={form.data} onChange={handleChange} className="input input-bordered w-full" />
+                                    {errors.data && <p className="text-error text-sm">{errors.data}</p>}
                             </div>
                             <div style={{ flex: 1 }}>
-                                <input type="time" name="ora" value={form.ora} onChange={handleChange} className="input input-bordered w-full" required />
+                                <input type="time" name="ora" value={form.ora} onChange={handleChange} className="input input-bordered w-full" />
                                 {errors.ora && <p className="text-error text-sm">{errors.ora}</p>}
                             </div>
                         </div>
@@ -138,6 +138,16 @@ export default function ElencoSpese({ id, className, listaSpese = [], onAdd, onD
         document.getElementById('modal_aggiunta')?.close()
     }
 
+    const openAddModal = () => {
+        const now = new Date()
+        const date = now.toISOString().slice(0, 10)
+        const hh = String(now.getHours()).padStart(2, '0')
+        const mm = String(now.getMinutes()).padStart(2, '0')
+        const time = `${hh}:${mm}`
+        setForm(f => ({ ...f, data: date, ora: time }))
+        setTimeout(() => document.getElementById('modal_aggiunta')?.showModal(), 0)
+    }
+
     const handleChange = (e) => {
         const { name, value } = e.target
         setForm(f => ({ ...f, [name]: value }))
@@ -155,8 +165,7 @@ export default function ElencoSpese({ id, className, listaSpese = [], onAdd, onD
         if (!form.costo || form.costo.toString().trim() === '') errs.costo = 'L\'importo è obbligatorio.'
         else if (isNaN(importo)) errs.costo = 'L\'importo deve essere un numero.'
         else if (importo < 0) errs.costo = 'L\'importo non può essere negativo.'
-        if (!form.data || form.data.trim() === '') errs.data = 'La data è obbligatoria.'
-        if (!form.ora || form.ora.trim() === '') errs.ora = 'L\'ora è obbligatoria.'
+        // date/time optional: if not provided we will use current datetime
 
         if (Object.keys(errs).length > 0) {
             setErrors(errs)
@@ -165,17 +174,19 @@ export default function ElencoSpese({ id, className, listaSpese = [], onAdd, onD
 
         let data
 
-        try {
-            const [y, m, d] = form.data.trim().split('-').map(Number)
-            const [hh, mm] = form.ora.trim().split(':').map(Number)
-            const utcMs = Date.UTC(y, m - 1, d, hh || 0, mm || 0, 0, 0)
-            // send proper ISO 8601 (RFC3339) timestamp expected by PocketBase
-            data = new Date(utcMs).toISOString()
-        } catch (err) {
-            // fallback to an ISO-like string if parsing fails
-            const datePart = form.data.trim()
-            const timePart = form.ora.trim() || '00:00'
-            data = `${datePart}T${timePart}:00.000Z`
+        // If both date and time provided, use them; otherwise use current datetime
+        if (form.data && form.ora) {
+            try {
+                const [y, m, d] = form.data.trim().split('-').map(Number)
+                const [hh, mm] = form.ora.trim().split(':').map(Number)
+                const utcMs = Date
+                // send proper ISO 8601 (RFC3339) timestamp expected by PocketBase
+                data = new Date(utcMs).toISOString()
+            } catch (err) {
+                data = new Date().toISOString()
+            }
+        } else {
+            data = new Date().toISOString()
         }
 
         const newItem = {
@@ -234,7 +245,7 @@ export default function ElencoSpese({ id, className, listaSpese = [], onAdd, onD
             <h2 id="elenco_title">Elenco Spese</h2>
 
             {/* toggles for showing/hiding sections */}
-            <div className='card bg-base-200 shadow-xl image-full scritta carta p-5'>
+            <div className='card bg-base-200 shadow-xl image-full scritta carta p-5 h-30'>
                 <div style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
                     <button className={`btn btn-sm ${showAddSection ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setShowAddSection(s => !s)}>
                         {showAddSection ? 'Nascondi Aggiunta' : 'Mostra Aggiunta'}
@@ -247,8 +258,8 @@ export default function ElencoSpese({ id, className, listaSpese = [], onAdd, onD
 
 
             {showAddSection && (
-                <div className="card bg-base-200 shadow-xl image-full scritta carta p-5">
-                    <FormModal form={form} handleChange={handleChange} handleSubmit={handleSubmit} closeModal={closeModal} errors={errors} />
+                <div className="card bg-base-200 shadow-xl image-full scritta carta p-5 h-20">
+                    <FormModal form={form} handleChange={handleChange} handleSubmit={handleSubmit} closeModal={closeModal} errors={errors} openModal={openAddModal} />
                 </div>
             )}
 

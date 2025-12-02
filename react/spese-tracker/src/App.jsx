@@ -46,6 +46,8 @@ function App() {
     console.log(spese)
   }, [])
 
+
+  
   // handler chiamato da ElencoSpese quando viene aggiunta una nuova spesa
   const handleAdd = async (newItem) => {
     try {
