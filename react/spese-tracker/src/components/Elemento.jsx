@@ -4,8 +4,6 @@ import '../App.css'
 
 export default function Elemento({ id, titolo = "Titolo non presente", descrizione = "Descrizione non presente", costo = 0.0, data = null, categoriaNome = '', onRequestDelete }) {
 
-    console.log('Rendering Elemento:', { id, titolo, descrizione, costo, data, categoriaNome });
-
     const formatData = (d) => {
         if (!d) return '—'
 

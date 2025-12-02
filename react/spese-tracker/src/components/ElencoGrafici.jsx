@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import { ResponsiveCalendar } from '@nivo/calendar'
 import { ResponsiveFunnel } from '@nivo/funnel'
+import { ResponsiveBar } from '@nivo/bar'
 import '../App.css'
 import './Elemento.css'
 
@@ -94,6 +95,56 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
       .sort((a, b) => parseInt(b.label.slice(0, 2), 10) - parseInt(a.label.slice(0, 2), 10))
   }, [listaSpese])
 
+  // Prepare data for category x year stacked bar chart
+  const barData = useMemo(() => {
+    // map categoryName -> { year -> sum }
+    const map = new Map()
+    const yearsSet = new Set()
+
+    listaSpese.forEach(item => {
+      const val = Number(item.importo ?? item.costo ?? 0) || 0
+      if (!val) return
+
+      // get category name (prefer categoriaNome, fallback to categoria or id)
+      const category = item.categoriaNome || item.categoria?.nome || item.categoria || item.categoriaId || '—'
+
+      // get year
+      let year = null
+      try {
+        const d = new Date(item.data)
+        if (!isNaN(d)) year = String(d.getFullYear())
+      } catch (err) {
+        // ignore
+      }
+      if (!year) {
+        // try to parse YYYY from string
+        const m = String(item.data || '').match(/(\d{4})/)
+        year = m ? m[1] : 'unknown'
+      }
+
+      yearsSet.add(year)
+
+      if (!map.has(category)) map.set(category, {})
+      const obj = map.get(category)
+      obj[year] = (obj[year] || 0) + val
+    })
+
+    const years = Array.from(yearsSet).sort()
+
+    const epsilon = 0.01 // small positive value to allow plotting on log scale
+    const data = Array.from(map.entries()).map(([category, sums]) => {
+      const base = { category }
+      years.forEach(y => {
+        const raw = Math.round((sums[y] || 0) * 100) / 100
+        base[`${y}_raw`] = raw
+        base[y] = raw > 0 ? raw : epsilon
+      })
+      return base
+    })
+
+    return { data, keys: years }
+  }, [listaSpese])
+
   return (
     <section id={id} className="panel panel-grafici" aria-labelledby="grafici_title">
       <h2 id="grafici_title">Analisi grafica delle spese</h2>
@@ -173,6 +224,81 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
             </div>
           ) : (
             <p style={{ marginTop: 12 }}>Nessuna spesa registrata per ora</p>
+          )}
+        </div>
+
+        <div className="card bg-base-200 shadow-xl image-full scritta carta p-5" style={{ marginTop: 12 }}>
+          <h3 style={{ margin: '0 0 8px 0' }}>Spesa per categoria e anno</h3>
+          {barData && barData.data && barData.data.length > 0 ? (
+            <div style={{ height: 420 }}>
+              <ResponsiveBar
+                data={barData.data}
+                keys={barData.keys}
+                indexBy="category"
+                margin={{ top: 50, right: 130, bottom: 80, left: 80 }}
+                padding={0.2}
+                groupMode="stacked"
+                valueScale={{ type: 'linear' }}
+                indexScale={{ type: 'band', round: true }}
+                colors={{ scheme: 'nivo' }}
+                borderColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
+                axisTop={null}
+                axisRight={null}
+                axisBottom={{
+                  tickSize: 5,
+                  tickPadding: 5,
+                  tickRotation: -45,
+                  legend: 'Categoria',
+                  legendPosition: 'middle',
+                  legendOffset: 60
+                }}
+                axisLeft={{
+                  tickSize: 5,
+                  tickPadding: 5,
+                  tickRotation: 0,
+                  legend: 'Totale (EUR)',
+                  legendPosition: 'middle',
+                  legendOffset: -60
+                }}
+                labelSkipWidth={12}
+                labelSkipHeight={12}
+                labelTextColor={{ from: 'color', modifiers: [['darker', 1.6]] }}
+                legends={[
+                  {
+                    dataFrom: 'keys',
+                    anchor: 'bottom-right',
+                    direction: 'column',
+                    justify: false,
+                    translateX: 120,
+                    translateY: 0,
+                    itemsSpacing: 2,
+                    itemWidth: 100,
+                    itemHeight: 20,
+                    itemDirection: 'left-to-right',
+                    itemOpacity: 0.85,
+                    symbolSize: 12,
+                    effects: [
+                      {
+                        on: 'hover',
+                        style: {
+                          itemOpacity: 1
+                        }
+                      }
+                    ]
+                  }
+                ]}
+                tooltip={({ id, value, color, indexValue }) => (
+                  <div className="scritta-tooltip">
+                    <div style={{ fontWeight: 'bold' }}>{indexValue}</div>
+                    <div>{String(id)}: {new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value)}</div>
+                  </div>
+                )}
+                role="application"
+                ariaLabel="Grafico spesa per categoria e anno"
+              />
+            </div>
+          ) : (
+            <p style={{ marginTop: 12 }}>Nessun dato disponibile per il grafico a barre</p>
           )}
         </div>
 

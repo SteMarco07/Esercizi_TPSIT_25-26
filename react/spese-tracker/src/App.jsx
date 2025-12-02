@@ -123,7 +123,7 @@ function App() {
 
       <main id="main_section">
         <ElencoSpese className={showGrafici ? '' : 'expanded'} listaSpese={spese} listaCategorie={categorie} onAdd={handleAdd} onDelete={handleDelete} />
-        {showGrafici && <ElencoGrafici id="grafici_section" listaSpese={spese} />}
+        {showGrafici && <ElencoGrafici id="grafici_section" listaSpese={spese} listaCategorie={categorie} />}
       </main>
 
       <footer id="app_footer" aria-hidden="true">
