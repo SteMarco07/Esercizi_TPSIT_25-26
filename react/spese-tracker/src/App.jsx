@@ -35,9 +35,12 @@ function App() {
   useEffect(() => {
     async function getSpese() {
       try {
-        const listSpese = await pb.collection('spese').getFullList();
-        console.log(listSpese);
-        setSpese(listSpese);
+        // request spese with expanded categoria relation
+        const listSpese = await pb.collection('spese').getFullList({ expand: 'categoria' });
+        // enrich each record with a convenient categoriaNome field
+        const enriched = listSpese.map(s => ({ ...s, categoriaNome: s.expand?.categoria?.nome || s.categoria || '' }))
+        console.log('Spese caricate (enriched):', enriched);
+        setSpese(enriched);
       } catch (error) {
         console.error('Errore nel caricamento delle spese:', error);
       }
@@ -45,6 +48,23 @@ function App() {
     getSpese();
     console.log(spese)
   }, [])
+
+  const [categorie, setCategorie] = useState([])
+
+  useEffect(() => {
+    async function getCategorie() {
+      try {
+        const listCategorie = await pb.collection('spese_categorie').getFullList();
+        console.log(listCategorie);
+        setCategorie(listCategorie);
+      } catch (error) {
+        console.error('Errore nel caricamento delle spese:', error);
+      }
+    }
+    getCategorie();
+    console.log(categorie)
+  }, [])
+
 
 
   
@@ -59,11 +79,25 @@ function App() {
         data: newItem.data,
       }
 
+      // include category id if provided (try both keys for compatibility)
+      if (newItem.categoriaId) {
+        record.categoria = newItem.categoriaId
+        record.categoriaId = newItem.categoriaId
+      }
+
       console.log('Record da creare su PocketBase:', record);
 
       const created = await pb.collection('spese').create(record)
-
-      setSpese(prev => [created, ...prev])
+      // fetch the created record with expand to get categoria object
+      try {
+        const createdExpanded = await pb.collection('spese').getOne(created.id, { expand: 'categoria' })
+        const enrichedCreated = { ...createdExpanded, categoriaNome: createdExpanded.expand?.categoria?.nome || createdExpanded.categoria || '' }
+        setSpese(prev => [enrichedCreated, ...prev])
+      } catch (err) {
+        // fallback: if expand fetch fails, add the created raw record
+        console.warn('Impossibile recuperare il record creato con expand, usando record grezzo', err)
+        setSpese(prev => [created, ...prev])
+      }
     } catch (err) {
       console.error('Errore nella creazione della spesa su PocketBase:', err)
 
@@ -88,7 +122,7 @@ function App() {
 
 
       <main id="main_section">
-        <ElencoSpese className={showGrafici ? '' : 'expanded'} listaSpese={spese} onAdd={handleAdd} onDelete={handleDelete} />
+        <ElencoSpese className={showGrafici ? '' : 'expanded'} listaSpese={spese} listaCategorie={categorie} onAdd={handleAdd} onDelete={handleDelete} />
         {showGrafici && <ElencoGrafici id="grafici_section" listaSpese={spese} />}
       </main>
 

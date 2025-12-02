@@ -1,23 +1,42 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import Elemento from './Elemento'
 
-function AggiungiSpese({ list = [], onRequestDelete }) {
+// helper: resolve category name from several possible shapes
+const resolveCategoriaNome = (item, listaCategorie = []) => {
+    if (!item) return ''
+    if (item.categoriaNome) return item.categoriaNome
+    if (item.expand && item.expand.categoria && (item.expand.categoria.nome || item.expand.categoria.name)) return item.expand.categoria.nome || item.expand.categoria.name
+    if (item.categoria && typeof item.categoria === 'string') return item.categoria
+    if (item.categoria && typeof item.categoria === 'object' && (item.categoria.nome || item.categoria.name)) return item.categoria.nome || item.categoria.name
+    const id = item.categoriaId || item.categoria || item.categoryId || item.categoria_id || item._categoria
+    if (id && listaCategorie && listaCategorie.length) {
+        const found = listaCategorie.find(c => String(c.id) === String(id) || String(c._id) === String(id))
+        if (found) return found.nome || found.name || ''
+    }
+    return ''
+}
 
-    return list.map((element, pos) => (
-        <Elemento
-            key={element.id ?? pos}
-            titolo={element.titolo}
-            descrizione={element.descrizione}
-            data={element.data}
-            costo={element.importo}
-            id={element.id}
-            onRequestDelete={onRequestDelete}
-        />
-    ));
+function AggiungiSpese({ list = [], categories = [], onRequestDelete }) {
+
+    return list.map((element, pos) => {
+        const nomeCat = resolveCategoriaNome(element, categories)
+        return (
+            <Elemento
+                key={element.id ?? pos}
+                titolo={element.titolo}
+                descrizione={element.descrizione}
+                data={element.data}
+                costo={element.importo}
+                id={element.id}
+                categoriaNome={nomeCat}
+                onRequestDelete={onRequestDelete}
+            />
+        )
+    })
 
 }
 
-function FormModal({ form, handleChange, handleSubmit, closeModal, errors = {}, openModal }) {
+function FormModal({ form, handleChange, handleSubmit, closeModal, errors = {}, openModal, categories = [] }) {
     return (
         <>
             <input type="text" placeholder="Aggiungi una spesa" className="input input-bordered w-full mb-4" onClick={openModal} />
@@ -39,6 +58,18 @@ function FormModal({ form, handleChange, handleSubmit, closeModal, errors = {}, 
                         <div>
                             <input name="costo" value={form.costo} onChange={handleChange} className="input input-bordered w-full" placeholder="Importo (es. 23.50)" inputMode="decimal" type="number" step="0.01" min="0" required />
                             {errors.costo && <p className="text-error text-sm">{errors.costo}</p>}
+                        </div>
+
+                        <div>
+                            <label className="label p-0">
+                                <span className="label-text">Categoria</span>
+                            </label>
+                            <select name="categoriaId" value={form.categoriaId} onChange={handleChange} className="select select-bordered w-full">
+                                {(!categories || categories.length === 0) && <option value="">Nessuna categoria</option>}
+                                {(categories || []).map(cat => (
+                                    <option key={cat.id} value={cat.id}>{cat.nome}</option>
+                                ))}
+                            </select>
                         </div>
 
                         <div style={{ flexDirection: 'row', display: 'flex', gap: '8px' }}>
@@ -90,21 +121,10 @@ function DeleteModal({ pendingDeleteId, setPendingDeleteId, setLocalList, onDele
     )
 }
 
-export default function ElencoSpese({ id, className, listaSpese = [], onAdd, onDelete }) {
+export default function ElencoSpese({ id, className, listaSpese = [], listaCategorie = [], onAdd, onDelete }) {
 
-    const [localList, setLocalList] = useState(() => {
-        try {
-            return [...(listaSpese || [])].sort((a, b) => {
-                const ta = a && a.data ? Date.parse(a.data) : 0
-                const tb = b && b.data ? Date.parse(b.data) : 0
-                return tb - ta // newest first
-            })
-        } catch (err) {
-            return listaSpese
-        }
-    })
-    const [showModal, setShowModal] = useState(false)
-    const [form, setForm] = useState({ titolo: '', descrizione: '', costo: '', data: '', ora: '' })
+    const [localList, setLocalList] = useState()
+    const [form, setForm] = useState({ titolo: '', descrizione: '', costo: '', data: '', ora: '', categoriaId: '' })
     const [errors, setErrors] = useState({})
     const [pendingDeleteId, setPendingDeleteId] = useState(null)
 
@@ -125,15 +145,29 @@ export default function ElencoSpese({ id, className, listaSpese = [], onAdd, onD
                 const tb = b && b.data ? Date.parse(b.data) : 0
                 return tb - ta // newest first
             })
-            setLocalList(sorted)
+
+                // enrich each item with categoriaNome when possible
+                const enriched = (sorted || []).map(it => {
+                    if (!it) return it
+                    const nome = resolveCategoriaNome(it, listaCategorie)
+                    return { ...it, categoriaNome: nome }
+                })
+
+            setLocalList(enriched)
         } catch (err) {
             setLocalList(listaSpese)
         }
-    }, [listaSpese])
+    }, [listaSpese, listaCategorie])
+
+    // when categories change, ensure form has a default categoriaId
+    useEffect(() => {
+        if (listaCategorie && listaCategorie.length > 0) {
+            setForm(f => ({ ...f, categoriaId: f.categoriaId || listaCategorie[0].id }))
+        }
+    }, [listaCategorie])
 
     const closeModal = () => {
-        setShowModal(false)
-        setForm({ titolo: '', descrizione: '', costo: '', data: '', ora: '' })
+        setForm({ titolo: '', descrizione: '', costo: '', data: '', ora: '', categoriaId: '' })
         setErrors({})
         document.getElementById('modal_aggiunta')?.close()
     }
@@ -144,7 +178,7 @@ export default function ElencoSpese({ id, className, listaSpese = [], onAdd, onD
         const hh = String(now.getHours()).padStart(2, '0')
         const mm = String(now.getMinutes()).padStart(2, '0')
         const time = `${hh}:${mm}`
-        setForm(f => ({ ...f, data: date, ora: time }))
+        setForm(f => ({ ...f, data: date, ora: time, categoriaId: f.categoriaId || (localCategories && localCategories[0] ? localCategories[0].id : '') }))
         setTimeout(() => document.getElementById('modal_aggiunta')?.showModal(), 0)
     }
 
@@ -177,11 +211,11 @@ export default function ElencoSpese({ id, className, listaSpese = [], onAdd, onD
         // If both date and time provided, use them; otherwise use current datetime
         if (form.data && form.ora) {
             try {
-                const [y, m, d] = form.data.trim().split('-').map(Number)
-                const [hh, mm] = form.ora.trim().split(':').map(Number)
-                const utcMs = Date
-                // send proper ISO 8601 (RFC3339) timestamp expected by PocketBase
-                data = new Date(utcMs).toISOString()
+                    const [y, m, d] = form.data.trim().split('-').map(Number)
+                    const [hh, mm] = form.ora.trim().split(':').map(Number)
+                    // build a proper local Date from date + time
+                    const dt = new Date(y, m - 1, d, hh || 0, mm || 0)
+                    data = dt.toISOString()
             } catch (err) {
                 data = new Date().toISOString()
             }
@@ -189,14 +223,19 @@ export default function ElencoSpese({ id, className, listaSpese = [], onAdd, onD
             data = new Date().toISOString()
         }
 
+        const selectedCat = (listaCategorie || []).find(c => String(c.id) === String(form.categoriaId)) || null
+
         const newItem = {
             titolo,
             descrizione,
             importo,
             data,
+            categoriaId: form.categoriaId || null,
+            categoriaNome: selectedCat ? selectedCat.nome : '',
+            categoria: selectedCat,
         }
 
-        setLocalList(list => [newItem, ...list])
+        setLocalList(list => [newItem, ...(list || [])])
 
         if (typeof onAdd === 'function') {
             onAdd(newItem)
@@ -259,7 +298,7 @@ export default function ElencoSpese({ id, className, listaSpese = [], onAdd, onD
 
             {showAddSection && (
                 <div className="card bg-base-200 shadow-xl image-full scritta carta p-5 h-20">
-                    <FormModal form={form} handleChange={handleChange} handleSubmit={handleSubmit} closeModal={closeModal} errors={errors} openModal={openAddModal} />
+                            <FormModal form={form} handleChange={handleChange} handleSubmit={handleSubmit} closeModal={closeModal} errors={errors} openModal={openAddModal} categories={listaCategorie} />
                 </div>
             )}
 
@@ -280,7 +319,7 @@ export default function ElencoSpese({ id, className, listaSpese = [], onAdd, onD
             <div className="panel-body" aria-live="polite" style={{ display: 'flex', flexDirection: 'column' }}>
 
                 <div className="lista-wrapper" style={{ flex: '1 1 auto', overflowY: 'auto' }}>
-                    <AggiungiSpese list={filteredList} onRequestDelete={(id) => {
+                    <AggiungiSpese list={filteredList} categories={listaCategorie} onRequestDelete={(id) => {
                         setPendingDeleteId(id)
                         // open the confirm dialog
                         setTimeout(() => document.getElementById('confirm_delete').showModal(), 0)

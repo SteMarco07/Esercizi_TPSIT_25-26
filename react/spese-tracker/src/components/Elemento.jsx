@@ -2,7 +2,10 @@ import React from 'react'
 import './Elemento.css'
 import '../App.css'
 
-export default function Elemento({ id, titolo = "Titolo non presente", descrizione = "Descrizione non presente", costo = 0.0, data = null, onRequestDelete }) {
+export default function Elemento({ id, titolo = "Titolo non presente", descrizione = "Descrizione non presente", costo = 0.0, data = null, categoriaNome = '', onRequestDelete }) {
+
+    console.log('Rendering Elemento:', { id, titolo, descrizione, costo, data, categoriaNome });
+
     const formatData = (d) => {
         if (!d) return '—'
 
@@ -55,6 +58,7 @@ export default function Elemento({ id, titolo = "Titolo non presente", descrizio
                     <h3 className="card-title text-2xl scritta">{titolo}</h3>
                     <div className="meta-group" aria-hidden="true">
                         <div className="dettaglio" aria-label={`Data: ${formatData(data)}`}>{formatData(data)}</div>
+                        <div className="dettaglio" aria-label={`Categoria: ${categoriaNome || '—'}`}>{categoriaNome || '—'}</div>
                         <div className="dettaglio" aria-label={`Costo: €${Number(costo).toFixed(2)}`}>€{Number(costo).toFixed(2)}</div>
                     </div>
                 </div>

@@ -6,7 +6,8 @@
 
 /* Header row: title at left, cost badge at right */
 .card-header-row {
-    display: flex;
+    display: flex-wrap;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
@@ -40,7 +41,7 @@
 /* Meta group: date above cost, right-aligned */
 .meta-group {
     display: flex;
-    flex-direction: column;
+    flex-direction: horizontal;
     align-items: flex-end;
     gap: 0.25rem;
 }
