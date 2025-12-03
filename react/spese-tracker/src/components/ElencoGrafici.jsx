@@ -7,12 +7,9 @@ import './Elemento.css'
 
 function formatDateKey(d) {
   if (!d) return null
-  try {
-    const date = new Date(d)
-    if (!isNaN(date)) return date.toISOString().slice(0, 10)
-  } catch (e) {
-    // fall through
-  }
+  // try Date parsing first, then a simple yyyy-mm-dd match
+  const dt = new Date(d)
+  if (!isNaN(dt)) return dt.toISOString().slice(0, 10)
   const m = String(d).match(/(\d{4}-\d{2}-\d{2})/)
   return m ? m[1] : null
 }
@@ -59,16 +56,11 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
     try {
       const start = new Date(from)
       const end = new Date(to)
-      const msPerDay = 24 * 60 * 60 * 1000
-      const days = Math.max(1, Math.ceil((end - start) / msPerDay))
+      const days = Math.max(1, Math.ceil((end - start) / (24 * 60 * 60 * 1000)))
       const weeks = Math.max(1, Math.ceil(days / 7))
-
-      // Derive height: base + per-week increment. Use larger per-week
-      // step so calendar cells don't get too small and text doesn't overlap.
       const base = 160
-      const perWeek = 18 // pixels per week to create taller rows for readability
-      const height = Math.min(Math.max(base + weeks * perWeek, 300), 900)
-      return height
+      const perWeek = 12
+      return Math.min(Math.max(base + weeks * perWeek, 240), 700)
     } catch (err) {
       return 320
     }
@@ -77,22 +69,15 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
   // aggregate amounts per hour (0-23) for the funnel chart
   const hourData = useMemo(() => {
     const sums = new Array(24).fill(0)
-
     listaSpese.forEach(item => {
-      const raw = item.data
-      const d = new Date(raw)
+      const d = new Date(item.data)
       if (isNaN(d)) return
-      const hour = d.getUTCHours()
-      const val = Number(item.importo ?? item.costo ?? 0) || 0
-      sums[hour] += val
+      const h = d.getUTCHours()
+      sums[h] += Number(item.importo ?? item.costo ?? 0) || 0
     })
-
-    // map to objects with { id, value, label }, keep only hours with value > 0,
-    // and order the result by hour (ascending)
     return sums
       .map((v, i) => ({ id: `hour_${String(i).padStart(2, '0')}`, value: Math.round(v * 100) / 100, label: `${String(i).padStart(2, '0')}:00` }))
       .filter(x => x.value > 0)
-      .sort((a, b) => parseInt(b.label.slice(0, 2), 10) - parseInt(a.label.slice(0, 2), 10))
   }, [listaSpese])
 
   // Prepare data for category x year stacked bar chart
@@ -164,7 +149,7 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
           </div>
           {data && data.length > 0 ? (
 
-            <div style={{height: calendarHeight}}>
+            <div style={{ height: calendarHeight }}>
               <ResponsiveCalendar
                 data={data}
                 from={from}
@@ -175,20 +160,18 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
                 monthBorderColor="#979797b0"
                 dayBorderWidth={2}
                 dayBorderColor="#ffffff"
-                theme={{
-                  textColor: 'currentColor',
-                  labels: {
-                    text: {
-                      fill: 'currentColor'
-                    }
-                  }
+                theme={{ textColor: 'currentColor', labels: { text: { fill: 'currentColor' } } }}
+                tooltip={(node) => {
+                  const day = node?.day ?? node?.data?.day ?? ''
+                  const raw = node?.value ?? node?.data?.value ?? 0
+                  const num = Number(raw) || 0
+                  return (
+                    <div className="scritta-tooltip">
+                      <div className="scritta-tooltip-day">{day}</div>
+                      <div className="scritta-tooltip-value">{formatter.format(num)}</div>
+                    </div>
+                  )
                 }}
-                tooltip={({ day, value, color }) => (
-                  <div className="scritta-tooltip">
-                    <div className="scritta-tooltip-day">{day}</div>
-                    <div className="scritta-tooltip-value">{formatter.format(value || 0)}</div>
-                  </div>
-                )}
               />
             </div>
 
@@ -218,15 +201,19 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
                 afterSeparatorOffset={20}
                 currentPartSizeExtension={10}
                 currentBorderWidth={40}
-                tooltip={({ part }) => {
+                tooltip={(node) => {
+                  const d = node?.data ?? node
+                  const label = d?.label ?? d?.id ?? ''
+                  const formatted = d?.formattedValue ?? d?.formatted ?? null
+                  const raw = d?.value ?? d?.rawValue ?? 0
+                  const display = (formatted !== null && formatted !== undefined) ? String(formatted) : formatter.format(Number(raw) || 0)
                   return (
                     <div className="scritta-tooltip funnel-tooltip">
-                      <div className="scritta-tooltip-day">{part.data.label}</div>
-                      <div className="scritta-tooltip-value">{part.data.value}</div>
+                      <div className="scritta-tooltip-day">{label}</div>
+                      <div className="scritta-tooltip-value">{display}</div>
                     </div>
                   )
                 }}
-
               />
             </div>
           ) : (
@@ -297,7 +284,7 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
                 tooltip={({ id, value, color, indexValue }) => (
                   <div className="scritta-tooltip">
                     <div style={{ fontWeight: 'bold' }}>{indexValue}</div>
-                    <div>{String(id)}: {new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value)}</div>
+                    <div>{String(id)}: {formatter.format(Number(value) || 0)}</div>
                   </div>
                 )}
                 role="application"
