@@ -34,16 +34,11 @@ function App() {
   // theme persistence: initialize using safe helper
   const [theme, setTheme] = useState(() => safeGetItem('theme', 'dark'))
 
-  // apply theme to document and persist on change
   useEffect(() => {
-    try {
-      if (typeof document !== 'undefined' && document.documentElement) {
-        document.documentElement.setAttribute('data-theme', theme)
-      }
-      safeSetItem('theme', theme)
-    } catch (e) {
-      console.error('Unable to persist theme', e)
+    if (typeof document !== 'undefined' && document.documentElement) {
+      document.documentElement.setAttribute('data-theme', theme)
     }
+    safeSetItem('theme', theme)
   }, [theme])
 
   const [spese, setSpese] = useState([])
@@ -55,14 +50,12 @@ function App() {
         const listSpese = await pb.collection('spese').getFullList({ expand: 'categoria' });
         // enrich each record with a convenient categoriaNome field
         const enriched = listSpese.map(s => ({ ...s, categoriaNome: s.expand?.categoria?.nome || s.categoria || '' }))
-        console.log('Spese caricate (enriched):', enriched);
-        setSpese(enriched);
+        setSpese(enriched)
       } catch (error) {
-        console.error('Errore nel caricamento delle spese:', error);
+        console.error('Errore nel caricamento delle spese:', error)
       }
     }
     getSpese();
-    console.log(spese)
   }, [])
 
   const [categorie, setCategorie] = useState([])
@@ -71,14 +64,12 @@ function App() {
     async function getCategorie() {
       try {
         const listCategorie = await pb.collection('spese_categorie').getFullList();
-        console.log(listCategorie);
-        setCategorie(listCategorie);
+        setCategorie(listCategorie)
       } catch (error) {
-        console.error('Errore nel caricamento delle spese:', error);
+        console.error('Errore nel caricamento delle categorie:', error)
       }
     }
     getCategorie();
-    console.log(categorie)
   }, [])
 
 
@@ -101,8 +92,6 @@ function App() {
         record.categoriaId = newItem.categoriaId
       }
 
-      console.log('Record da creare su PocketBase:', record);
-
       const created = await pb.collection('spese').create(record)
       // fetch the created record with expand to get categoria object
       try {
@@ -111,7 +100,6 @@ function App() {
         setSpese(prev => [enrichedCreated, ...prev])
       } catch (err) {
         // fallback: if expand fetch fails, add the created raw record
-        console.warn('Impossibile recuperare il record creato con expand, usando record grezzo', err)
         setSpese(prev => [created, ...prev])
       }
     } catch (err) {
@@ -142,9 +130,6 @@ function App() {
         {showGrafici && <ElencoGrafici id="grafici_section" listaSpese={spese} listaCategorie={categorie} />}
       </main>
 
-      <footer id="app_footer" aria-hidden="true">
-        {/* footer minimale */}
-      </footer>
     </div>
   )
 }

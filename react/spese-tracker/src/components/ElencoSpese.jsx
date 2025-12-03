@@ -123,129 +123,32 @@ function DeleteModal({ pendingDeleteId, setPendingDeleteId, setLocalList, onDele
 
 export default function ElencoSpese({ id, className, listaSpese = [], listaCategorie = [], onAdd, onDelete }) {
 
-    const [localList, setLocalList] = useState()
-    const [form, setForm] = useState({ titolo: '', descrizione: '', costo: '', data: '', ora: '', categoriaId: '' })
-    const [errors, setErrors] = useState({})
-    const [pendingDeleteId, setPendingDeleteId] = useState(null)
+     const [localList, setLocalList] = useState([])
+     const [form, setForm] = useState({ titolo: '', descrizione: '', costo: '', data: '', ora: '', categoriaId: '' })
+     const [pendingDeleteId, setPendingDeleteId] = useState(null)
+     const [errors, setErrors] = useState({})
+     const [showAddSection, setShowAddSection] = useState(true)
+     const [showFilterSection, setShowFilterSection] = useState(true)
+     const [filterQuery, setFilterQuery] = useState('')
+     const [filterFrom, setFilterFrom] = useState('')
+     const [filterTo, setFilterTo] = useState('')
+     const [filterMin, setFilterMin] = useState('')
+     const [filterMax, setFilterMax] = useState('')
 
-    // filter state
-    const [filterQuery, setFilterQuery] = useState('')
-    const [filterFrom, setFilterFrom] = useState('')
-    const [filterTo, setFilterTo] = useState('')
-    const [filterMin, setFilterMin] = useState('')
-    const [filterMax, setFilterMax] = useState('')
-    // visibility toggles for add and filters sections
-    const [showAddSection, setShowAddSection] = useState(true)
-    const [showFilterSection, setShowFilterSection] = useState(true)
+     useEffect(() => {
+         const sorted = [...(listaSpese || [])].sort((a, b) => (b?.data ? Date.parse(b.data) : 0) - (a?.data ? Date.parse(a.data) : 0))
+         const enriched = (sorted || []).map(it => ({ ...it, categoriaNome: resolveCategoriaNome(it, listaCategorie) }))
+         setLocalList(enriched)
+     }, [listaSpese, listaCategorie])
 
-    useEffect(() => {
-        try {
-            const sorted = [...(listaSpese || [])].sort((a, b) => {
-                const ta = a && a.data ? Date.parse(a.data) : 0
-                const tb = b && b.data ? Date.parse(b.data) : 0
-                return tb - ta // newest first
-            })
+     const closeModal = () => {
+         setForm({ titolo: '', descrizione: '', costo: '', data: '', ora: '', categoriaId: '' })
+         setErrors({})
+         document.getElementById('modal_aggiunta')?.close()
+     }
 
-                // enrich each item with categoriaNome when possible
-                const enriched = (sorted || []).map(it => {
-                    if (!it) return it
-                    const nome = resolveCategoriaNome(it, listaCategorie)
-                    return { ...it, categoriaNome: nome }
-                })
-
-            setLocalList(enriched)
-        } catch (err) {
-            setLocalList(listaSpese)
-        }
-    }, [listaSpese, listaCategorie])
-
-    // when categories change, ensure form has a default categoriaId
-    useEffect(() => {
-        if (listaCategorie && listaCategorie.length > 0) {
-            setForm(f => ({ ...f, categoriaId: f.categoriaId || listaCategorie[0].id }))
-        }
-    }, [listaCategorie])
-
-    const closeModal = () => {
-        setForm({ titolo: '', descrizione: '', costo: '', data: '', ora: '', categoriaId: '' })
-        setErrors({})
-        document.getElementById('modal_aggiunta')?.close()
-    }
-
-    const openAddModal = () => {
-        const now = new Date()
-        const date = now.toISOString().slice(0, 10)
-        const hh = String(now.getHours()).padStart(2, '0')
-        const mm = String(now.getMinutes()).padStart(2, '0')
-        const time = `${hh}:${mm}`
-        setForm(f => ({ ...f, data: date, ora: time, categoriaId: f.categoriaId || ((listaCategorie && listaCategorie[0]) ? listaCategorie[0].id : '') }))
-        setTimeout(() => document.getElementById('modal_aggiunta')?.showModal(), 0)
-    }
-
-    const handleChange = (e) => {
-        const { name, value } = e.target
-        setForm(f => ({ ...f, [name]: value }))
-    }
-
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        const errs = {}
-
-        const titolo = form.titolo.trim()
-        const descrizione = form.descrizione.trim() || ''
-        const importo = Number(form.costo)
-
-        if (!titolo || titolo === '') errs.titolo = 'Il titolo è obbligatorio.'
-        if (!form.costo || form.costo.toString().trim() === '') errs.costo = 'L\'importo è obbligatorio.'
-        else if (isNaN(importo)) errs.costo = 'L\'importo deve essere un numero.'
-        else if (importo < 0) errs.costo = 'L\'importo non può essere negativo.'
-        // date/time optional: if not provided we will use current datetime
-
-        if (Object.keys(errs).length > 0) {
-            setErrors(errs)
-            return
-        }
-
-        let data
-
-        // If both date and time provided, use them; otherwise use current datetime
-        if (form.data && form.ora) {
-            try {
-                    const [y, m, d] = form.data.trim().split('-').map(Number)
-                    const [hh, mm] = form.ora.trim().split(':').map(Number)
-                    // build a proper local Date from date + time
-                    const dt = new Date(y, m - 1, d, hh || 0, mm || 0)
-                    data = dt.toISOString()
-            } catch (err) {
-                data = new Date().toISOString()
-            }
-        } else {
-            data = new Date().toISOString()
-        }
-
-        const selectedCat = (listaCategorie || []).find(c => String(c.id) === String(form.categoriaId)) || null
-
-        const newItem = {
-            titolo,
-            descrizione,
-            importo,
-            data,
-            categoriaId: form.categoriaId || null,
-            categoriaNome: selectedCat ? selectedCat.nome : '',
-            categoria: selectedCat,
-        }
-
-        setLocalList(list => [newItem, ...(list || [])])
-
-        if (typeof onAdd === 'function') {
-            onAdd(newItem)
-        }
-
-        closeModal()
-    }
-
-    // derive filtered list from localList
-    const filteredList = useMemo(() => {
+     // filtered list derived from localList and filters
+     const filteredList = useMemo(() => {
         try {
             const q = String(filterQuery || '').trim().toLowerCase()
             const fromTs = filterFrom ? Date.parse(filterFrom) : null
@@ -255,29 +158,79 @@ export default function ElencoSpese({ id, className, listaSpese = [], listaCateg
 
             return (localList || []).filter(item => {
                 if (!item) return false
-                // text match on titolo or descrizione
                 if (q) {
                     const t = String(item.titolo || '').toLowerCase()
                     const d = String(item.descrizione || '').toLowerCase()
                     if (!t.includes(q) && !d.includes(q)) return false
                 }
-                // date range filter (item.data may be ISO string)
                 if ((fromTs || toTs) && item.data) {
                     const it = Date.parse(item.data)
                     if (fromTs && isFinite(fromTs) && it < fromTs) return false
                     if (toTs && isFinite(toTs) && it > (toTs + 24 * 60 * 60 * 1000 - 1)) return false
                 }
-                // amount range
                 const val = Number(item.importo ?? item.costo ?? 0)
                 if (minVal !== null && !isNaN(minVal) && val < minVal) return false
                 if (maxVal !== null && !isNaN(maxVal) && val > maxVal) return false
-
                 return true
             })
         } catch (err) {
             return localList
         }
     }, [localList, filterQuery, filterFrom, filterTo, filterMin, filterMax])
+
+     const openAddModal = () => {
+         const now = new Date()
+         setForm(f => ({ ...f, data: now.toISOString().slice(0,10), ora: `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`, categoriaId: f.categoriaId || (listaCategorie?.[0]?.id || '') }))
+         setTimeout(() => document.getElementById('modal_aggiunta')?.showModal(), 0)
+     }
+
+     const handleChange = (e) => {
+         const { name, value } = e.target
+         setForm(f => ({ ...f, [name]: value }))
+     }
+
+     const handleSubmit = (e) => {
+         e.preventDefault()
+         const titolo = form.titolo.trim()
+         const importo = Number(form.costo)
+         if (!titolo || titolo === '') return
+         if (!form.costo || form.costo.toString().trim() === '') return
+         if (isNaN(importo) || importo < 0) return
+
+         let data
+         if (form.data && form.ora) {
+             try {
+                     const [y, m, d] = form.data.trim().split('-').map(Number)
+                     const [hh, mm] = form.ora.trim().split(':').map(Number)
+                     const dt = new Date(y, m - 1, d, hh || 0, mm || 0)
+                     data = dt.toISOString()
+             } catch (err) {
+                 data = new Date().toISOString()
+             }
+         } else {
+             data = new Date().toISOString()
+         }
+
+         const selectedCat = (listaCategorie || []).find(c => String(c.id) === String(form.categoriaId)) || null
+
+         const newItem = {
+             titolo,
+             descrizione: form.descrizione.trim() || '',
+             importo,
+             data,
+             categoriaId: form.categoriaId || null,
+             categoriaNome: selectedCat ? selectedCat.nome : '',
+             categoria: selectedCat,
+         }
+
+         setLocalList(list => [newItem, ...(list || [])])
+
+         if (typeof onAdd === 'function') {
+             onAdd(newItem)
+         }
+
+         closeModal()
+     }
 
     return (
         <section id="elenco_section" className={`panel panel-elenco ${className || ''}`} aria-labelledby="elenco_title">
