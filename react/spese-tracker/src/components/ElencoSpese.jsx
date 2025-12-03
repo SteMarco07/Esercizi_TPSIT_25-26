@@ -178,7 +178,7 @@ export default function ElencoSpese({ id, className, listaSpese = [], listaCateg
         const hh = String(now.getHours()).padStart(2, '0')
         const mm = String(now.getMinutes()).padStart(2, '0')
         const time = `${hh}:${mm}`
-        setForm(f => ({ ...f, data: date, ora: time, categoriaId: f.categoriaId || (localCategories && localCategories[0] ? localCategories[0].id : '') }))
+        setForm(f => ({ ...f, data: date, ora: time, categoriaId: f.categoriaId || ((listaCategorie && listaCategorie[0]) ? listaCategorie[0].id : '') }))
         setTimeout(() => document.getElementById('modal_aggiunta')?.showModal(), 0)
     }
 

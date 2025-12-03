@@ -1,30 +1,46 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import PocketBase from 'pocketbase'
 import './App.css'
 import NavBar from './components/NavBar'
 import ElencoSpese from './components/ElencoSpese'
 import ElencoGrafici from './components/ElencoGrafici'
 
-const pb = new PocketBase('http://127.0.0.1:8090');
+// safe localStorage helpers (avoid ReferenceError in non-browser contexts)
+function safeGetItem(key, fallback = null) {
+  try {
+    if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') return fallback
+    const v = window.localStorage.getItem(key)
+    return v === null ? fallback : v
+  } catch (e) {
+    return fallback
+  }
+}
 
+function safeSetItem(key, value) {
+  try {
+    if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') return
+    window.localStorage.setItem(key, value)
+  } catch (e) {
+    // ignore
+  }
+}
 
 function App() {
   const [showGrafici, setShowGrafici] = useState(true)
+  // create PocketBase client inside component to avoid accessing localStorage
+  // during module evaluation (can cause issues in non-browser envs)
+  const pb = useMemo(() => new PocketBase('http://127.0.0.1:8090'), [])
 
-  // theme persistence: initialize from localStorage (fallback 'dark')
-  const [theme, setTheme] = useState(() => {
-    try {
-      return localStorage.getItem('theme') || 'dark'
-    } catch (e) {
-      return 'dark'
-    }
-  })
+  // theme persistence: initialize using safe helper
+  const [theme, setTheme] = useState(() => safeGetItem('theme', 'dark'))
 
   // apply theme to document and persist on change
   useEffect(() => {
     try {
-      document.documentElement.setAttribute('data-theme', theme)
-      localStorage.setItem('theme', theme)
+      if (typeof document !== 'undefined' && document.documentElement) {
+        document.documentElement.setAttribute('data-theme', theme)
+      }
+      safeSetItem('theme', theme)
     } catch (e) {
       console.error('Unable to persist theme', e)
     }

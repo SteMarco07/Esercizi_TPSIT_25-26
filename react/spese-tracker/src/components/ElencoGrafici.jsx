@@ -152,42 +152,49 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
 
         <div className="card bg-base-200 shadow-xl image-full scritta carta p-5 mb-5">
           <h3><strong>Totale spese:</strong></h3>
-          <p style={{marginTop: 40}}>{formatter.format(total)}</p>
+          <p style={{ marginTop: 40 }}>{formatter.format(total)}</p>
         </div>
 
 
 
-        <div className="card bg-base-200 shadow-xl image-full scritta carta p-5" style={{ height: calendarHeight }}>
+        <div className="card bg-base-200 shadow-xl image-full scritta carta p-5">
           <h3>Calendario delle spese</h3>
+          <div>
+
+          </div>
           {data && data.length > 0 ? (
-            <ResponsiveCalendar
-              data={data}
-              from={from}
-              to={to}
-              emptyColor="#eeeeee"
-              margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
-              yearSpacing={20}
-              monthBorderColor="#979797b0"
-              dayBorderWidth={2}
-              dayBorderColor="#ffffff"
-              theme={{
-                textColor: 'currentColor',
-                labels: {
-                  text: {
-                    fill: 'currentColor'
+
+            <div style={{height: calendarHeight}}>
+              <ResponsiveCalendar
+                data={data}
+                from={from}
+                to={to}
+                emptyColor="#eeeeee"
+                margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
+                yearSpacing={20}
+                monthBorderColor="#979797b0"
+                dayBorderWidth={2}
+                dayBorderColor="#ffffff"
+                theme={{
+                  textColor: 'currentColor',
+                  labels: {
+                    text: {
+                      fill: 'currentColor'
+                    }
                   }
-                }
-              }}
-              tooltip={({ day, value, color }) => (
-                <div className="scritta-tooltip">
-                  <div className="scritta-tooltip-day">{day}</div>
-                  <div className="scritta-tooltip-value">{formatter.format(value || 0)}</div>
-                </div>
-              )}
-            />
+                }}
+                tooltip={({ day, value, color }) => (
+                  <div className="scritta-tooltip">
+                    <div className="scritta-tooltip-day">{day}</div>
+                    <div className="scritta-tooltip-value">{formatter.format(value || 0)}</div>
+                  </div>
+                )}
+              />
+            </div>
+
           ) : (
-            <div style={{ padding: 12 }}>
-              <p style={{ margin: 0 }}>Nessun dato disponibile per i grafici</p>
+            <div style={{ marginTop: 30 }}>
+              <p>Nessun dato disponibile per i grafici</p>
             </div>
           )}
         </div>
@@ -223,7 +230,7 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
               />
             </div>
           ) : (
-            <p style={{ marginTop: 12 }}>Nessuna spesa registrata per ora</p>
+            <p style={{ marginTop: 30 }}>Nessuna spesa registrata per ora</p>
           )}
         </div>
 
@@ -298,7 +305,7 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
               />
             </div>
           ) : (
-            <p style={{ marginTop: 12 }}>Nessun dato disponibile per il grafico a barre</p>
+            <p style={{ marginTop: 30 }}>Nessun dato disponibile per il grafico a barre</p>
           )}
         </div>
 
