@@ -167,7 +167,7 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
                   const num = Number(raw) || 0
                   return (
                     <div className="scritta-tooltip">
-                      <div className="scritta-tooltip-day">{day}</div>
+                      <div className="scritta-tooltip-day"><p style={{ fontWeight: 'bold' }}>{day}</p></div>
                       <div className="scritta-tooltip-value">{formatter.format(num)}</div>
                     </div>
                   )
@@ -202,14 +202,15 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
                 currentPartSizeExtension={10}
                 currentBorderWidth={40}
                 tooltip={(node) => {
-                  const d = node?.data ?? node
-                  const label = d?.label ?? d?.id ?? ''
+                  console.log(node)
+                  const d = node.part.data
+                  const label = d.label
                   const formatted = d?.formattedValue ?? d?.formatted ?? null
                   const raw = d?.value ?? d?.rawValue ?? 0
                   const display = (formatted !== null && formatted !== undefined) ? String(formatted) : formatter.format(Number(raw) || 0)
                   return (
                     <div className="scritta-tooltip funnel-tooltip">
-                      <div className="scritta-tooltip-day">{label}</div>
+                      <div className="scritta-tooltip-day"><p style={{ fontWeight: 'bold' }}>{label}</p></div>
                       <div className="scritta-tooltip-value">{display}</div>
                     </div>
                   )
