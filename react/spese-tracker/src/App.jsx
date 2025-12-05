@@ -1,9 +1,11 @@
 import { useState, useEffect, useMemo } from 'react'
 import PocketBase from 'pocketbase'
 import './App.css'
-import NavBar from './components/NavBar'
-import ElencoSpese from './components/ElencoSpese'
-import ElencoGrafici from './components/ElencoGrafici'
+import { Routes, Route, Outlet } from 'react-router-dom'
+import Sidebar from './components/Sidebar'
+import Home from './components/Home'
+import Spese from './components/Spese'
+import Categorie from './components/Categorie'
 
 // safe localStorage helpers (avoid ReferenceError in non-browser contexts)
 function safeGetItem(key, fallback = null) {
@@ -120,15 +122,16 @@ function App() {
   }
 
   return (
-    <div id="div_pagina">
+    <div className="flex">
 
-      <NavBar theme={theme} setTheme={setTheme} showGrafici={showGrafici} setShowGrafici={setShowGrafici} />
-
-
-      <main id="main_section">
-        <ElencoSpese className={showGrafici ? '' : 'expanded'} listaSpese={spese} listaCategorie={categorie} onAdd={handleAdd} onDelete={handleDelete} />
-        {showGrafici && <ElencoGrafici id="grafici_section" listaSpese={spese} listaCategorie={categorie} />}
-      </main>
+      <Sidebar />
+      <div className="flex-1">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/spese" element={<Spese />} />
+          <Route path="/categorie" element={<Categorie />} />
+        </Routes>
+      </div>
 
     </div>
   )
