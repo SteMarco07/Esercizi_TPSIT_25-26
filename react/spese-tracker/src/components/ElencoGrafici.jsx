@@ -70,10 +70,12 @@ export default function ElencoGrafici({ id, listaSpese = [] }) {
   const hourData = useMemo(() => {
     const sums = new Array(24).fill(0)
     listaSpese.forEach(item => {
+      // parse date and use local hour (consider client timezone)
       const d = new Date(item.data)
       if (isNaN(d)) return
-      const h = d.getUTCHours()
-      sums[h] += Number(item.importo ?? item.costo ?? 0) || 0
+      const hour = d.getHours()
+      const val = Number(item.importo ?? item.costo ?? 0) || 0
+      sums[hour] += val
     })
     return sums
       .map((v, i) => ({ id: `hour_${String(i).padStart(2, '0')}`, value: Math.round(v * 100) / 100, label: `${String(i).padStart(2, '0')}:00` }))
