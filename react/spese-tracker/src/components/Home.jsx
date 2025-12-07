@@ -71,8 +71,7 @@ function Home() {
   return (
     <div id="div_pagina">
       <main id="main_section" className="ml-64">
-        <ElencoSpese className={showGrafici ? '' : 'expanded'} />
-        {showGrafici && <ElencoGrafici id="grafici_section" listaSpese={spese} listaCategorie={categorie} />}
+        <ElencoGrafici id="grafici_section" listaSpese={spese} listaCategorie={categorie} />
       </main>
     </div>
   )
