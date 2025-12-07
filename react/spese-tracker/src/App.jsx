@@ -73,54 +73,7 @@ function App() {
     }
     getCategorie();
   }, [])
-
-
-
-  
-  // handler chiamato da ElencoSpese quando viene aggiunta una nuova spesa
-  const handleAdd = async (newItem) => {
-    try {
-
-      const record = {
-        titolo: newItem.titolo,
-        descrizione: newItem.descrizione || '',
-        importo: newItem.importo,
-        data: newItem.data,
-      }
-
-      // include category id if provided (try both keys for compatibility)
-      if (newItem.categoriaId) {
-        record.categoria = newItem.categoriaId
-        record.categoriaId = newItem.categoriaId
-      }
-
-      const created = await pb.collection('spese').create(record)
-      // fetch the created record with expand to get categoria object
-      try {
-        const createdExpanded = await pb.collection('spese').getOne(created.id, { expand: 'categoria' })
-        const enrichedCreated = { ...createdExpanded, categoriaNome: createdExpanded.expand?.categoria?.nome || createdExpanded.categoria || '' }
-        setSpese(prev => [enrichedCreated, ...prev])
-      } catch (err) {
-        // fallback: if expand fetch fails, add the created raw record
-        setSpese(prev => [created, ...prev])
-      }
-    } catch (err) {
-      console.error('Errore nella creazione della spesa su PocketBase:', err)
-
-    }
-  }
-
-  // handler per eliminare una spesa (chiamato da ElencoSpese)
-  const handleDelete = async (id) => {
-    try {
-      await pb.collection('spese').delete(id)
-      setSpese(prev => prev.filter(item => item.id !== id))
-    } catch (err) {
-      console.error('Errore durante l\'eliminazione su PocketBase:', err)
-      throw err
-    }
-  }
-
+ 
   return (
     <div className="flex">
 

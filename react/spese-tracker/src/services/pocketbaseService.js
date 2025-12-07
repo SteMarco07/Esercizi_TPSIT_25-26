@@ -74,6 +74,8 @@ export const addCategoria = async (categoriaData) => {
     const record = {
       nome: categoriaData.nome,
       descrizione: categoriaData.descrizione || '',
+      // optional color field
+      ...(categoriaData.colore ? { colore: categoriaData.colore } : {}),
     }
     const created = await pb.collection('spese_categorie').create(record)
     return created
