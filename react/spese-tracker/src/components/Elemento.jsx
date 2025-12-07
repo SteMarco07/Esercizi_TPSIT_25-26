@@ -2,7 +2,7 @@ import React from 'react'
 import './Elemento.css'
 import '../App.css'
 
-export default function Elemento({ id, titolo = "Titolo non presente", descrizione = "Descrizione non presente", costo = 0.0, data = null, categoriaNome = '', onRequestDelete }) {
+export default function Elemento({ id, titolo = "Titolo non presente", descrizione = "Descrizione non presente", costo = 0.0, data = null, categoriaNome = '', categoriaColore = '', onRequestDelete, asRow = false }) {
 
     const formatData = (d) => {
         if (!d) return '—'
@@ -50,23 +50,41 @@ export default function Elemento({ id, titolo = "Titolo non presente", descrizio
     }
 
     return (
-        <div className="card bg-base-200 shadow-xl image-full transform hover:-translate-y-2 transition-transform duration-300 carta">
-            <div className="card-body">
-                <div className="card-header-row">
-                    <h3 className="card-title text-2xl scritta">{titolo}</h3>
-                    <div className="meta-group" aria-hidden="true">
-                        <div className="dettaglio" aria-label={`Data: ${formatData(data)}`}>{formatData(data)}</div>
-                        <div className="dettaglio" aria-label={`Categoria: ${categoriaNome || '—'}`}>{categoriaNome || '—'}</div>
-                        <div className="dettaglio" aria-label={`Costo: €${Number(costo).toFixed(2)}`}>€{Number(costo).toFixed(2)}</div>
+        asRow ? (
+            <tr key={id}>
+                <td className="truncate" style={{ maxWidth: 220 }}>{titolo}</td>
+                <td className="truncate" style={{ maxWidth: 320 }}>{descrizione || '-'}</td>
+                <td>{formatData(data)}</td>
+                <td>{typeof costo === 'number' ? Number(costo).toFixed(2) : costo}</td>
+                <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        {categoriaColore ? <span style={{ width: 14, height: 14, borderRadius: 3, display: 'inline-block', backgroundColor: categoriaColore, border: '1px solid rgba(0,0,0,0.1)' }} aria-hidden></span> : null}
+                        <span>{categoriaNome || '—'}</span>
+                    </div>
+                </td>
+                <td>
+                    <button className="btn btn-sm btn-error" onClick={() => { if (typeof onRequestDelete === 'function') onRequestDelete(id) }}>Elimina</button>
+                </td>
+            </tr>
+        ) : (
+            <div className="card bg-base-200 shadow-xl image-full transform hover:-translate-y-2 transition-transform duration-300 carta">
+                <div className="card-body">
+                    <div className="card-header-row">
+                        <h3 className="card-title text-2xl scritta">{titolo}</h3>
+                        <div className="meta-group" aria-hidden="true">
+                            <div className="dettaglio" aria-label={`Data: ${formatData(data)}`}>{formatData(data)}</div>
+                            <div className="dettaglio" aria-label={`Categoria: ${categoriaNome || '—'}`}>{categoriaNome || '—'}</div>
+                            <div className="dettaglio" aria-label={`Costo: €${Number(costo).toFixed(2)}`}>€{Number(costo).toFixed(2)}</div>
+                        </div>
+                    </div>
+
+                    <p className='scritta'>{descrizione}</p>
+                    <div className="card-actions justify-end mt-4">
+                        <button className="btn btn-ouline btn-error bottone" onClick={() => { if (typeof onRequestDelete === 'function') onRequestDelete(id) }}>Elimina</button>
+
                     </div>
                 </div>
-
-                <p className='scritta'>{descrizione}</p>
-                <div className="card-actions justify-end mt-4">
-                    <button className="btn btn-ouline btn-error bottone" onClick={() => { if (typeof onRequestDelete === 'function') onRequestDelete(id) }}>Elimina</button>
-
-                </div>
             </div>
-        </div>
+        )
     )
 }

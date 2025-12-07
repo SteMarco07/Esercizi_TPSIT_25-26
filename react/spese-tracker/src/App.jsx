@@ -78,7 +78,7 @@ function App() {
     <div className="flex">
 
       <Sidebar />
-      <div className="flex-1">
+      <div className="flex-1 overflow-y-hidden" style={{ height: '100vh' }}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/spese" element={<Spese />} />
