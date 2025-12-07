@@ -4,7 +4,7 @@ import './App.css'
 import { Routes, Route, Outlet } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
 import Home from './components/Home'
-import Spese from './components/Spese'
+import ElencoSpese from './components/ElencoSpese'
 import Categorie from './components/Categorie'
 
 // safe localStorage helpers (avoid ReferenceError in non-browser contexts)
@@ -77,11 +77,11 @@ function App() {
   return (
     <div className="flex">
 
-      <Sidebar />
+      <Sidebar theme={theme} setTheme={setTheme} />
       <div className="flex-1 overflow-y-hidden" style={{ height: '100vh' }}>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/spese" element={<Spese />} />
+          <Route path="/spese" element={<ElencoSpese />} />
           <Route path="/categorie" element={<Categorie />} />
         </Routes>
       </div>

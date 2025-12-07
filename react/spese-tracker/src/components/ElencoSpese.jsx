@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import Elemento from './Elemento'
-import NavBar from './NavBar'
+import { getSpese, getCategorie, addSpesa, deleteSpesa } from '../services/pocketbaseService'
 
 // helper: resolve category name from several possible shapes
 const resolveCategoriaNome = (item, listaCategorie = []) => {
@@ -59,7 +59,6 @@ function FormModal({ form, handleChange, handleSubmit, closeModal, errors = {}, 
             {showTrigger && (
                 <input type="text" placeholder="Aggiungi una spesa" className="input input-bordered w-full mb-4" onClick={openModal} />
             )}
-
             <dialog id="modal_aggiunta" className="modal modal-bottom sm:modal-middle">
                 <div className="modal-box">
                     <h3 className="text-lg font-bold">Aggiungi una spesa</h3>
@@ -140,7 +139,7 @@ function DeleteModal({ pendingDeleteId, setPendingDeleteId, setLocalList, onDele
     )
 }
 
-export default function ElencoSpese({ id, className, listaSpese = [], listaCategorie = [], onAdd, onDelete }) {
+export default function ElencoSpese() {
 
     // theme persistence helpers (match Categorie page)
     function safeGetItem(key, fallback = null) {
@@ -171,11 +170,11 @@ export default function ElencoSpese({ id, className, listaSpese = [], listaCateg
     }, [theme])
 
     const [localList, setLocalList] = useState([])
+    const [categorie, setCategorie] = useState([])
     const [form, setForm] = useState({ titolo: '', descrizione: '', costo: '', data: '', ora: '', categoriaId: '' })
     const [pendingDeleteId, setPendingDeleteId] = useState(null)
     const [errors, setErrors] = useState({})
-    const [showAddSection, setShowAddSection] = useState(true)
-    const [showFilterSection, setShowFilterSection] = useState(true)
+    const [showFilterSection, setShowFilterSection] = useState(false)
     const [filterQuery, setFilterQuery] = useState('')
     const [filterFrom, setFilterFrom] = useState('')
     const [filterTo, setFilterTo] = useState('')
@@ -184,10 +183,19 @@ export default function ElencoSpese({ id, className, listaSpese = [], listaCateg
     const [filterMax, setFilterMax] = useState('')
 
     useEffect(() => {
-        const sorted = [...(listaSpese || [])].sort((a, b) => (b?.data ? Date.parse(b.data) : 0) - (a?.data ? Date.parse(a.data) : 0))
-        const enriched = (sorted || []).map(it => ({ ...it, categoriaNome: resolveCategoriaNome(it, listaCategorie) }))
-        setLocalList(enriched)
-    }, [listaSpese, listaCategorie])
+        async function fetchAll() {
+            try {
+                const [s, c] = await Promise.all([getSpese(), getCategorie()])
+                const sorted = [...(s || [])].sort((a, b) => (b?.data ? Date.parse(b.data) : 0) - (a?.data ? Date.parse(a.data) : 0))
+                const enriched = (sorted || []).map(it => ({ ...it, categoriaNome: resolveCategoriaNome(it, c) }))
+                setLocalList(enriched)
+                setCategorie(c || [])
+            } catch (err) {
+                console.error('Errore nel caricamento delle spese/categorie:', err)
+            }
+        }
+        fetchAll()
+    }, [])
 
     const closeModal = () => {
         setForm({ titolo: '', descrizione: '', costo: '', data: '', ora: '', categoriaId: '' })
@@ -228,9 +236,9 @@ export default function ElencoSpese({ id, className, listaSpese = [], listaCateg
                         if (String(itemCatId) !== fc) return false
                     } else {
                         // fallback: compare resolved category name to selected category name
-                        const selected = (listaCategorie || []).find(c => String(c.id) === fc)
+                        const selected = (categorie || []).find(c => String(c.id) === fc)
                         if (selected) {
-                            const itemName = String(resolveCategoriaNome(item, listaCategorie) || '').toLowerCase()
+                            const itemName = String(resolveCategoriaNome(item, categorie) || '').toLowerCase()
                             if (itemName !== String(selected.nome || '').toLowerCase()) return false
                         }
                     }
@@ -248,11 +256,11 @@ export default function ElencoSpese({ id, className, listaSpese = [], listaCateg
         } catch (err) {
             return localList
         }
-    }, [localList, filterQuery, filterFrom, filterTo, filterMin, filterMax, filterCategoria, listaCategorie])
+    }, [localList, filterQuery, filterFrom, filterTo, filterMin, filterMax, filterCategoria, categorie])
 
     const openAddModal = () => {
         const now = new Date()
-        setForm(f => ({ ...f, data: now.toISOString().slice(0, 10), ora: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`, categoriaId: f.categoriaId || (listaCategorie?.[0]?.id || '') }))
+        setForm(f => ({ ...f, data: now.toISOString().slice(0, 10), ora: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`, categoriaId: f.categoriaId || (categorie?.[0]?.id || '') }))
         setTimeout(() => document.getElementById('modal_aggiunta')?.showModal(), 0)
     }
 
@@ -261,7 +269,7 @@ export default function ElencoSpese({ id, className, listaSpese = [], listaCateg
         setForm(f => ({ ...f, [name]: value }))
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
         const titolo = form.titolo.trim()
         const importo = Number(form.costo)
@@ -283,7 +291,7 @@ export default function ElencoSpese({ id, className, listaSpese = [], listaCateg
             data = new Date().toISOString()
         }
 
-        const selectedCat = (listaCategorie || []).find(c => String(c.id) === String(form.categoriaId)) || null
+        const selectedCat = (categorie || []).find(c => String(c.id) === String(form.categoriaId)) || null
 
         const newItem = {
             titolo,
@@ -295,78 +303,93 @@ export default function ElencoSpese({ id, className, listaSpese = [], listaCateg
             categoria: selectedCat,
         }
 
-        setLocalList(list => [newItem, ...(list || [])])
-
-        if (typeof onAdd === 'function') {
-            onAdd(newItem)
+        try {
+            const created = await addSpesa(newItem)
+            const enriched = { ...created, categoriaNome: resolveCategoriaNome(created, categorie) }
+            setLocalList(list => [enriched, ...(list || [])])
+        } catch (err) {
+            console.error('Errore durante la creazione della spesa:', err)
         }
 
         closeModal()
     }
 
+    const handleDelete = async (id) => {
+        try {
+            await deleteSpesa(id)
+        } catch (err) {
+            console.error('Eliminazione fallita:', err)
+            throw err
+        }
+    }
+
     return (
-        <div id="div_pagina">
-
-            <div className="flex justify-between items-center mb-4 w-full">
-                <h1 className="text-2xl font-bold">Elenco Spese</h1>
-            </div>
-
-            <div className="flex items-center mb-4 gap-4">
-                <input readOnly type="text" placeholder="Aggiungi una spesa" className="input input-bordered w-full md:w-80" onClick={openAddModal} />
-                <FormModal form={form} handleChange={handleChange} handleSubmit={handleSubmit} closeModal={closeModal} errors={errors} openModal={openAddModal} categories={listaCategorie} showTrigger={false} />
-                <button className={`btn btn-sm ${showFilterSection ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setShowFilterSection(s => !s)}>
-                    {showFilterSection ? 'Nascondi Filtri' : 'Mostra Filtri'}
-                </button>
-            </div>
-
-            {showFilterSection && (
-                <div className="card shadow-xl image-full carta p-5">
-                    <div className="flex items-center gap-2 flex-nowrap w-full">
-                        <input className="input input-sm input-bordered flex-[2] min-w-[140px]" placeholder="Cerca titolo o descrizione" value={filterQuery} onChange={e => setFilterQuery(e.target.value)} />
-
-                        <select className="select select-sm select-bordered flex-1 min-w-[120px]" value={filterCategoria} onChange={e => setFilterCategoria(e.target.value)}>
-                            <option value="">Tutte le categorie</option>
-                            {(listaCategorie || []).map(cat => (
-                                <option key={cat.id} value={cat.id}>{cat.nome}</option>
-                            ))}
-                        </select>
-
-                        <input className="input input-sm input-bordered flex-1 min-w-[120px]" type="date" value={filterFrom} onChange={e => setFilterFrom(e.target.value)} />
-                        <input className="input input-sm input-bordered flex-1 min-w-[120px]" type="date" value={filterTo} onChange={e => setFilterTo(e.target.value)} />
-
-                        <input className="input input-sm input-bordered flex-1 min-w-[100px]" type="number" placeholder="Min importo" value={filterMin} onChange={e => setFilterMin(e.target.value)} step="0.01" />
-                        <input className="input input-sm input-bordered flex-1 min-w-[100px]" type="number" placeholder="Max importo" value={filterMax} onChange={e => setFilterMax(e.target.value)} step="0.01" />
-
-                        <div className="ml-auto">
-                            <button className="btn btn-sm" onClick={() => { setFilterQuery(''); setFilterFrom(''); setFilterTo(''); setFilterMin(''); setFilterMax(''); setFilterCategoria('') }}>Azzera</button>
-                        </div>
+        <div className='div_pagina'>
+            <main id="main_section" className="ml-64 p-4 flex flex-col">
+                
+                    <div className="flex justify-between items-center mb-4 w-full">
+                        <h1 className="text-2xl font-bold">Elenco Spese</h1>
                     </div>
-                </div>
-            )}
 
-            <div className="overflow-x-auto w-full overflow-y-auto mt-5" style={{ maxHeight: '60vh' }}>
-                <table className="table w-full">
-                    <thead>
-                        <tr>
-                            <th>Titolo</th>
-                            <th>Descrizione</th>
-                            <th>Data</th>
-                            <th>Importo</th>
-                            <th>Categoria</th>
-                            <th>Azioni</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <AggiungiSpese list={filteredList} categories={listaCategorie} onRequestDelete={(id) => {
-                            setPendingDeleteId(id)
-                            setTimeout(() => document.getElementById('confirm_delete')?.showModal(), 0)
-                        }} />
-                    </tbody>
-                </table>
-            </div>
+                    <div className="flex items-center mb-4 gap-4 w-full">
+                        <input readOnly type="text" placeholder="Aggiungi una spesa" className="input input-bordered w-full md:w-80" onClick={openAddModal} />
+                        <FormModal form={form} handleChange={handleChange} handleSubmit={handleSubmit} closeModal={closeModal} errors={errors} openModal={openAddModal} categories={categorie} showTrigger={false} />
+                        <button className={`btn btn-sm ${showFilterSection ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setShowFilterSection(s => !s)}>
+                            {showFilterSection ? 'Nascondi Filtri' : 'Mostra Filtri'}
+                        </button>
+                    </div>
 
-            {/* Modals */}
-            <DeleteModal pendingDeleteId={pendingDeleteId} setPendingDeleteId={setPendingDeleteId} setLocalList={setLocalList} onDelete={onDelete} />
+                    {showFilterSection && (
+                        <div className="card shadow-xl image-full carta p-5  w-full">
+                            <div className="flex items-center gap-2 flex-nowrap">
+                                <input className="input input-sm input-bordered flex-[2] min-w-[140px]" placeholder="Cerca titolo o descrizione" value={filterQuery} onChange={e => setFilterQuery(e.target.value)} />
+
+                                <select className="select select-sm select-bordered flex-1 min-w-[120px]" value={filterCategoria} onChange={e => setFilterCategoria(e.target.value)}>
+                                    <option value="">Tutte le categorie</option>
+                                    {(categorie || []).map(cat => (
+                                        <option key={cat.id} value={cat.id}>{cat.nome}</option>
+                                    ))}
+                                </select>
+
+                                <input className="input input-sm input-bordered flex-1 min-w-[120px]" type="date" value={filterFrom} onChange={e => setFilterFrom(e.target.value)} />
+                                <input className="input input-sm input-bordered flex-1 min-w-[120px]" type="date" value={filterTo} onChange={e => setFilterTo(e.target.value)} />
+
+                                <input className="input input-sm input-bordered flex-1 min-w-[100px]" type="number" placeholder="Min importo" value={filterMin} onChange={e => setFilterMin(e.target.value)} step="0.01" />
+                                <input className="input input-sm input-bordered flex-1 min-w-[100px]" type="number" placeholder="Max importo" value={filterMax} onChange={e => setFilterMax(e.target.value)} step="0.01" />
+
+                                <div className="ml-auto">
+                                    <button className="btn btn-sm" onClick={() => { setFilterQuery(''); setFilterFrom(''); setFilterTo(''); setFilterMin(''); setFilterMax(''); setFilterCategoria('') }}>Azzera</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="overflow-x-auto w-full overflow-y-auto mt-5" style={{ maxHeight: '67vh' }}>
+                        <table className="table w-full">
+                            <thead>
+                                <tr>
+                                    <th>Titolo</th>
+                                    <th>Descrizione</th>
+                                    <th>Data</th>
+                                    <th>Importo</th>
+                                    <th>Categoria</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <AggiungiSpese list={filteredList} categories={categorie} onRequestDelete={(id) => {
+                                    setPendingDeleteId(id)
+                                    setTimeout(() => document.getElementById('confirm_delete')?.showModal(), 0)
+                                }} />
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Modals */}
+                    <DeleteModal pendingDeleteId={pendingDeleteId} setPendingDeleteId={setPendingDeleteId} setLocalList={setLocalList} onDelete={handleDelete} />
+
+                
+            </main>
 
         </div>
     )

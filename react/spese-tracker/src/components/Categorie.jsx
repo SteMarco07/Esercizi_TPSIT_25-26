@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import NavBar from '../components/NavBar'
 import { getCategorie, addCategoria, deleteCategoria } from '../services/pocketbaseService'
 
 // safe localStorage helpers (avoid ReferenceError in non-browser contexts)
@@ -37,7 +36,7 @@ function Categoria({ list, onRequestDelete }) {
                     ) : '-'}
                 </td>
                 <td>
-                    <button onClick={() => onRequestDelete(cat.id)} className="btn btn-sm btn-error">X</button>
+                    <button onClick={() => onRequestDelete(cat.id)} className="btn btn-sm btn-error">Elimina</button>
                 </td>
             </tr>
         ))
@@ -156,8 +155,7 @@ function Categorie() {
     }
 
     return (
-        <div id="div_pagina">
-            <NavBar theme={theme} setTheme={setTheme} />
+        <div className="div_pagina">
             <main id="main_section" className="ml-64 p-4 flex flex-col">
                 <div className="flex justify-between items-center mb-4 w-full">
                     <h1 className="text-2xl font-bold">Categorie</h1>

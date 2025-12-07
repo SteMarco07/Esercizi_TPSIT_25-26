@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import NavBar from '../components/NavBar'
 import ElencoSpese from '../components/ElencoSpese'
 import ElencoGrafici from '../components/ElencoGrafici'
 import { getSpese, getCategorie, addSpesa, deleteSpesa } from '../services/pocketbaseService'
@@ -71,9 +70,8 @@ function Home() {
 
   return (
     <div id="div_pagina">
-      <NavBar theme={theme} setTheme={setTheme} showGrafici={showGrafici} setShowGrafici={setShowGrafici} />
       <main id="main_section" className="ml-64">
-        <ElencoSpese className={showGrafici ? '' : 'expanded'} listaSpese={spese} listaCategorie={categorie} onAdd={handleAdd} onDelete={handleDelete} />
+        <ElencoSpese className={showGrafici ? '' : 'expanded'} />
         {showGrafici && <ElencoGrafici id="grafici_section" listaSpese={spese} listaCategorie={categorie} />}
       </main>
     </div>

@@ -2,10 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-#div_pagina {
+.div_pagina {
+  padding: 10px;
   width: 100%;
+  min-height: 100vh;
   display: flex;
-  flex-direction: column;
   min-height: 100vh;
   overflow-y: hidden;
 }
@@ -88,7 +89,7 @@
     color: #000
   }
 
-  #div_pagina {
+  .div_pagina {
     background-color: #ececec
   }
 
@@ -108,7 +109,7 @@
 }
 
 [data-theme="dark"] {
-  #div_pagina {
+  .div_pagina {
     background-color: #0a1e31
   }
 
@@ -132,5 +133,5 @@
 }
 
 .scritta svg text {
-  fill: currentColor !important
+  fill: currentColor
 }
