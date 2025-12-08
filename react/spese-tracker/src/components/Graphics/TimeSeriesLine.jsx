@@ -70,6 +70,11 @@ export default function TimeSeriesLine({ listaSpese = [], formatter, rangeOverri
                 data={series}
                 margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
                 yScale={{ type: 'linear', min: 'auto', max: 'auto', stacked: true, reverse: false }}
+                // Improve visibility: thicker line, subtle area, larger points
+                colors={[ '#ff7b00ff' ]}
+                lineWidth={3}
+                enableArea={true}
+                areaOpacity={0.12}
                 axisBottom={{
                     orient: 'bottom',
                     tickRotation: -45,
@@ -92,7 +97,7 @@ export default function TimeSeriesLine({ listaSpese = [], formatter, rangeOverri
                     }
                 }}
                 axisLeft={{ legend: 'Spesa', legendOffset: -40 }}
-                pointSize={10}
+                pointSize={8}
                 pointColor={{ theme: 'background' }}
                 pointBorderWidth={2}
                 pointBorderColor={{ from: 'seriesColor' }}
