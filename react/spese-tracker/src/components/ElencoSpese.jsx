@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import Elemento from './Elemento'
 import AddSpesaModal from './AddSpesaModal'
-import AddCategoriaModal from './AddCategoriaModal'
 import { getSpese, getCategorie, deleteSpesa } from '../services/pocketbaseService'
 import { resolveCategoriaNome, resolveCategoriaColore } from '../utils/categoriaUtils'
 

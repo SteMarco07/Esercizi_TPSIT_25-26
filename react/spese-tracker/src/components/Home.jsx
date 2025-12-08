@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
-import ElencoGrafici from '../components/ElencoGrafici'
+// ElencoGrafici is not used here; charts are rendered inline
 import Elemento from './Elemento'
 import AddSpesaModal from './AddSpesaModal'
 import AddCategoriaModal from './AddCategoriaModal'
-import { getSpese, getCategorie, addSpesa, deleteSpesa } from '../services/pocketbaseService'
+import { getSpese, getCategorie, deleteSpesa } from '../services/pocketbaseService'
 import { resolveCategoriaNome, resolveCategoriaColore } from '../utils/categoriaUtils'
 import TimeSeriesLine from './Graphics/TimeSeriesLine'
 
@@ -66,7 +66,6 @@ function Home() {
     await deleteSpesa(id)
     setSpese(prev => prev.filter(item => item.id !== id))
   }
-  const totale = spese.reduce((s, it) => s + (Number(it.importo ?? it.costo ?? 0) || 0), 0)
 
   return (
     <div className="div_pagina">
