@@ -6,6 +6,7 @@ import Sidebar from './components/Sidebar'
 import Home from './components/Home'
 import ElencoSpese from './components/ElencoSpese'
 import Categorie from './components/Categorie'
+import ElencoGrafici from './components/ElencoGrafici'
 
 // safe localStorage helpers (avoid ReferenceError in non-browser contexts)
 function safeGetItem(key, fallback = null) {
@@ -73,7 +74,7 @@ function App() {
     }
     getCategorie();
   }, [])
- 
+
   return (
     <div className="flex">
 
@@ -83,6 +84,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/spese" element={<ElencoSpese />} />
           <Route path="/categorie" element={<Categorie />} />
+          <Route path="/grafici" element={<ElencoGrafici />} />
         </Routes>
       </div>
 

@@ -31,6 +31,12 @@ function Sidebar({ theme, setTheme }) {
             <span>Categorie</span>
           </NavLink>
         </li>
+        <li className="mb-2">
+          <NavLink to="/grafici" className={({ isActive }) => `flex items-center gap-3 p-3 rounded-lg w-full justify-start transition-colors ${isActive ? 'bg-primary text-primary-content' : 'hover:bg-base-100'}`}>
+            <span className="text-lg">📊</span>
+            <span>Grafici</span>
+          </NavLink>
+        </li>
       </ul>
       </div>
 

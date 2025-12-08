@@ -5,10 +5,6 @@ import { aggregateCategoryShare } from '../../utils/graphicsUtils'
 export default function CategorySharePie({ listaSpese = [], formatter }) {
   const data = useMemo(() => aggregateCategoryShare(listaSpese), [listaSpese])
 
-  if (!data || data.length === 0) {
-    return <p style={{ marginTop: 12 }}>Nessuna spesa per mostrare la ripartizione</p>
-  }
-
   return (
     <div style={{ height: 320, margin: 12 }}>
       <ResponsivePie

@@ -56,13 +56,13 @@ export default function TimeSeriesLine({ listaSpese = [], formatter }) {
 
     return (
         <div className="p-3" style={{ height: 320 }}>
-            <div className="mb-3 flex gap-2">
+            <div className="mb-3 flex gap-2 mt-5">
                 <button className={`btn btn-sm ${range === 'day' ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setRange('day')}>Giorno</button>
                 <button className={`btn btn-sm ${range === 'week' ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setRange('week')}>Settimana</button>
                 <button className={`btn btn-sm ${range === 'month' ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setRange('month')}>Mese</button>
             </div>
 
-            <ResponsiveLine /* or Line for fixed dimensions */
+            <ResponsiveLine
                 data={series}
                 margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
                 yScale={{ type: 'linear', min: 'auto', max: 'auto', stacked: true, reverse: false }}
