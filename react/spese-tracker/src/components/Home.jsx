@@ -71,7 +71,7 @@ function Home() {
     <div className="div_pagina">
       <main id="main_section" className="ml-64 p-4 flex flex-col gap-4">
         {/* Row 1: two columns */}
-        <div className="grid grid-cols-2 md:grid-cols-2 gap-4 w-full">
+        <div className="grid grid-cols-2 md:grid-cols-2 gap-4 w-full min-h-[320px]">
 
 
           <div className="card bg-base-200 shadow-xl p-4 carta">
@@ -94,8 +94,11 @@ function Home() {
                 <thead>
                   <tr>
                     <th>Titolo</th>
+                    <th>Descrizione</th>
                     <th>Data</th>
                     <th>Importo</th>
+                    <th>Categoria</th>
+                    <th>Azioni</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -145,7 +148,7 @@ function Home() {
 
 
         {/* Row 3: grafici (full width) */}
-        <div className="grid grid-cols-2 md:grid-cols-2 gap-4 w-full">
+        <div className="grid grid-cols-2 md:grid-cols-2 gap-4 w-full min-h-[320px]">
           <div className="card bg-base-200 shadow-xl p-4 carta">
             <h3 className="font-bold">Spese - Giorno</h3>
             <TimeSeriesLine listaSpese={spese} rangeOverride="day" height={280} formatter={new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' })} />

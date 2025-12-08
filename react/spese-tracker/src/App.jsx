@@ -7,6 +7,11 @@ import Home from './components/Home'
 import ElencoSpese from './components/ElencoSpese'
 import Categorie from './components/Categorie'
 import ElencoGrafici from './components/ElencoGrafici'
+import Login from './components/Login'
+import Signup from './components/Signup'
+import { AuthProvider } from './contexts/AuthContext'
+import RequireAuth from './components/RequireAuth'
+import { useAuth } from './contexts/AuthContext'
 
 // safe localStorage helpers (avoid ReferenceError in non-browser contexts)
 function safeGetItem(key, fallback = null) {
@@ -76,18 +81,29 @@ function App() {
   }, [])
 
   return (
-    <div className="flex">
+    <AuthProvider>
+      <AppContent theme={theme} setTheme={setTheme} />
+    </AuthProvider>
+  )
+}
 
-      <Sidebar theme={theme} setTheme={setTheme} />
+function AppContent({ theme, setTheme }) {
+  const { user } = useAuth() || {}
+
+  return (
+    <div className="flex">
+      {user && <Sidebar theme={theme} setTheme={setTheme} />}
       <div className="flex-1 overflow-y-hidden" style={{ height: '100vh' }}>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/spese" element={<ElencoSpese />} />
-          <Route path="/categorie" element={<Categorie />} />
-          <Route path="/grafici" element={<ElencoGrafici />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/" element={<RequireAuth><Home /></RequireAuth>} />
+          <Route path="/spese" element={<RequireAuth><ElencoSpese /></RequireAuth>} />
+          <Route path="/categorie" element={<RequireAuth><Categorie /></RequireAuth>} />
+          <Route path="/grafici" element={<RequireAuth><ElencoGrafici /></RequireAuth>} />
+          <Route path="*" element={<RequireAuth><Home /></RequireAuth>} />
         </Routes>
       </div>
-
     </div>
   )
 }
