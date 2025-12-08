@@ -7,14 +7,16 @@ function formatDate(d) {
     return dt.toISOString().slice(0, 10)
 }
 
-export default function TimeSeriesLine({ listaSpese = [], formatter }) {
+export default function TimeSeriesLine({ listaSpese = [], formatter, rangeOverride = null, height = 320 }) {
     const [range, setRange] = useState('week') // 'day' | 'week' | 'month'
 
     const series = useMemo(() => {
         const items = Array.isArray(listaSpese) ? listaSpese : (listaSpese && typeof listaSpese === 'object' ? Object.values(listaSpese) : [])
         const now = new Date()
 
-        if (range === 'day') {
+        const effectiveRange = rangeOverride || range
+
+        if (effectiveRange === 'day') {
             // last 24 hours, hourly buckets
             const hours = new Array(24).fill(0)
             items.forEach(it => {
@@ -32,7 +34,7 @@ export default function TimeSeriesLine({ listaSpese = [], formatter }) {
         }
 
         // week -> last 7 days; month -> last 30 days
-        const days = range === 'week' ? 7 : 30
+        const days = effectiveRange === 'week' ? 7 : 30
         const buckets = {}
         for (let i = days - 1; i >= 0; i--) {
             const d = new Date(now)
@@ -52,15 +54,17 @@ export default function TimeSeriesLine({ listaSpese = [], formatter }) {
 
         const data = Object.keys(buckets).map(k => ({ x: k, y: Math.round((buckets[k] || 0) * 100) / 100 }))
         return [{ id: 'Spese', data }]
-    }, [listaSpese, range])
+    }, [listaSpese, range, rangeOverride])
 
     return (
-        <div className="p-3" style={{ height: 320 }}>
-            <div className="mb-3 flex gap-2 mt-5">
-                <button className={`btn btn-sm ${range === 'day' ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setRange('day')}>Giorno</button>
-                <button className={`btn btn-sm ${range === 'week' ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setRange('week')}>Settimana</button>
-                <button className={`btn btn-sm ${range === 'month' ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setRange('month')}>Mese</button>
-            </div>
+        <div className="p-3" style={{ height }}>
+            {!rangeOverride && (
+                <div className="mb-3 flex gap-2 mt-5">
+                    <button className={`btn btn-sm ${range === 'day' ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setRange('day')}>Giorno</button>
+                    <button className={`btn btn-sm ${range === 'week' ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setRange('week')}>Settimana</button>
+                    <button className={`btn btn-sm ${range === 'month' ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setRange('month')}>Mese</button>
+                </div>
+            )}
 
             <ResponsiveLine
                 data={series}

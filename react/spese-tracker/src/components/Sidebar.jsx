@@ -7,7 +7,7 @@ function Sidebar({ theme, setTheme }) {
   }
 
   return (
-    <div className="fixed left-0 top-0 h-full w-64 bg-gradient-to-b from-base-300 to-base-200 shadow-lg flex flex-col justify-between">
+    <div className="fixed left-0 top-0 h-full w-64 bg-gradient-to-b from-base-300 to-base-200 shadow-lg flex flex-col justify-start">
       <div className="p-4 border-b border-base-content/10">
         <h2 className="text-xl font-bold text-primary">Spese Tracker</h2>
       </div>
@@ -40,7 +40,7 @@ function Sidebar({ theme, setTheme }) {
       </ul>
       </div>
 
-      <div className="p-4 border-t border-base-content/10">
+      <div className="p-4 border-t border-base-content/10 mt-auto">
         <label className="flex items-center gap-3 w-full">
           <span className="text-sm">Tema</span>
           <label className="swap swap-rotate ml-auto">

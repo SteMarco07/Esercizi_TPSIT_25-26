@@ -3,10 +3,6 @@
     display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.75rem;
  }
  
- .dettaglio {
-    width:150px; padding:.25rem .6rem; border-radius:8px; font-weight:700; min-width:5.5rem; text-align:center;
- }
- 
  .bottone {
     width:150px;
  }
@@ -41,11 +37,11 @@
      
  
      .carta {
-        background-color:#ececec;
+        background-color:#cecdcd;
      }
  
      .dettaglio {
-        color:#000; background:#b8b8b8cc;
+        color:#000; background:#f0efef;
      }
  }
  
@@ -55,6 +51,6 @@
      }
  
      .dettaglio {
-        color:#e5e7eb; background-color:#00000050;
+        color:#e5e7eb; background-color:#10274ecb;
      }
  }
