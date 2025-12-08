@@ -1,8 +1,11 @@
 import { useState, useEffect, useMemo } from 'react'
 import PocketBase from 'pocketbase'
 import './App.css'
-import NavBar from './components/NavBar'
+import { Routes, Route, Outlet } from 'react-router-dom'
+import Sidebar from './components/Sidebar'
+import Home from './components/Home'
 import ElencoSpese from './components/ElencoSpese'
+import Categorie from './components/Categorie'
 import ElencoGrafici from './components/ElencoGrafici'
 
 // safe localStorage helpers (avoid ReferenceError in non-browser contexts)
@@ -72,63 +75,18 @@ function App() {
     getCategorie();
   }, [])
 
-
-
-  
-  // handler chiamato da ElencoSpese quando viene aggiunta una nuova spesa
-  const handleAdd = async (newItem) => {
-    try {
-
-      const record = {
-        titolo: newItem.titolo,
-        descrizione: newItem.descrizione || '',
-        importo: newItem.importo,
-        data: newItem.data,
-      }
-
-      // include category id if provided (try both keys for compatibility)
-      if (newItem.categoriaId) {
-        record.categoria = newItem.categoriaId
-        record.categoriaId = newItem.categoriaId
-      }
-
-      const created = await pb.collection('spese').create(record)
-      // fetch the created record with expand to get categoria object
-      try {
-        const createdExpanded = await pb.collection('spese').getOne(created.id, { expand: 'categoria' })
-        const enrichedCreated = { ...createdExpanded, categoriaNome: createdExpanded.expand?.categoria?.nome || createdExpanded.categoria || '' }
-        setSpese(prev => [enrichedCreated, ...prev])
-      } catch (err) {
-        // fallback: if expand fetch fails, add the created raw record
-        setSpese(prev => [created, ...prev])
-      }
-    } catch (err) {
-      console.error('Errore nella creazione della spesa su PocketBase:', err)
-
-    }
-  }
-
-  // handler per eliminare una spesa (chiamato da ElencoSpese)
-  const handleDelete = async (id) => {
-    try {
-      await pb.collection('spese').delete(id)
-      setSpese(prev => prev.filter(item => item.id !== id))
-    } catch (err) {
-      console.error('Errore durante l\'eliminazione su PocketBase:', err)
-      throw err
-    }
-  }
-
   return (
-    <div id="div_pagina">
+    <div className="flex">
 
-      <NavBar theme={theme} setTheme={setTheme} showGrafici={showGrafici} setShowGrafici={setShowGrafici} />
-
-
-      <main id="main_section">
-        <ElencoSpese className={showGrafici ? '' : 'expanded'} listaSpese={spese} listaCategorie={categorie} onAdd={handleAdd} onDelete={handleDelete} />
-        {showGrafici && <ElencoGrafici id="grafici_section" listaSpese={spese} listaCategorie={categorie} />}
-      </main>
+      <Sidebar theme={theme} setTheme={setTheme} />
+      <div className="flex-1 overflow-y-hidden" style={{ height: '100vh' }}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/spese" element={<ElencoSpese />} />
+          <Route path="/categorie" element={<Categorie />} />
+          <Route path="/grafici" element={<ElencoGrafici />} />
+        </Routes>
+      </div>
 
     </div>
   )
