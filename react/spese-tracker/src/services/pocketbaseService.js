@@ -151,6 +151,24 @@ export const signUpUser = async ({ email, password, passwordConfirm, name }) => 
     const created = await pb.collection('users').create(payload)
     // authenticate after creating
     await pb.collection('users').authWithPassword(email, password)
+    // After successful signup+auth, create default category and an initial expense
+    try {
+      const defaultCat = await addCategoria({ nome: 'Altro', descrizione: 'Categoria predefinita', colore: '#ffffff' })
+      try {
+        await addSpesa({
+          titolo: 'InitialExpense',
+          descrizione: 'Spesa iniziale per generare grafici',
+          importo: 0.01,
+          data: new Date().toISOString(),
+          categoriaId: defaultCat?.id || null,
+        })
+      } catch (e) {
+        console.warn('Impossibile creare la spesa iniziale:', e)
+      }
+    } catch (e) {
+      console.warn('Impossibile creare la categoria predefinita:', e)
+    }
+
     return pb.authStore.model
   } catch (error) {
     console.error('Errore nella registrazione utente:', error)

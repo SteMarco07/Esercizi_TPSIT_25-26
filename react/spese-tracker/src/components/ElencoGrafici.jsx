@@ -49,22 +49,22 @@ export default function ElencoGrafici() {
 
           <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
 
-            <div className="card bg-base-200 shadow-xl image-full scritta carta p-5" style={{ minHeight: 320 }}>
+            <div className="card bg-base-200 shadow-xl image-full scritta carta p-5" style={{ minHeight: 340 }}>
               <h3>Ripartizione per categoria</h3>
               <CategorySharePie listaSpese={listaSpese} formatter={formatter} />
             </div>
 
-            <div className="card bg-base-200 shadow-xl image-full scritta carta p-5" style={{ minHeight: 320 }}>
+            <div className="card bg-base-200 shadow-xl image-full scritta carta p-5" style={{ minHeight: 340 }}>
               <h3>Calendario delle spese</h3>
               <CalendarChart listaSpese={listaSpese} formatter={formatter} />
             </div>
 
-            <div className="card bg-base-200 shadow-xl image-full scritta carta p-5" style={{ minHeight: 320 }}>
+            <div className="card bg-base-200 shadow-xl image-full scritta carta p-5" style={{ minHeight: 340  }}>
               <h3 style={{ margin: '0 0 8px 0' }}>Andamento temporale</h3>
               <TimeSeriesLine listaSpese={listaSpese} formatter={formatter} />
             </div>
 
-            <div className="card bg-base-200 shadow-xl image-full scritta carta p-5" style={{ minHeight: 320 }}>
+            <div className="card bg-base-200 shadow-xl image-full scritta carta p-5" style={{ minHeight: 340 }}>
               <h3 style={{ margin: '0 0 8px 0' }}>Spesa per categoria e anno</h3>
               <CategoryYearBar listaSpese={listaSpese} formatter={formatter} />
             </div>
