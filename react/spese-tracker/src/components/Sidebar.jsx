@@ -1,9 +1,20 @@
 import { NavLink } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 
 function Sidebar({ theme, setTheme }) {
   function toggleTheme(e) {
     const next = e.target.checked ? 'dark' : 'light'
     if (typeof setTheme === 'function') setTheme(next)
+  }
+
+  const { user, logout } = useAuth()
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+    } catch (err) {
+      console.error('Logout error', err)
+    }
   }
 
   return (
@@ -61,6 +72,16 @@ function Sidebar({ theme, setTheme }) {
             </svg>
           </label>
         </label>
+        <div className="mt-4">
+          {user ? (
+            <div className="flex items-center gap-2">
+              <div className="text-sm">{user.email || user.username || user.name}</div>
+              <button className="btn btn-sm btn-ghost ml-auto" onClick={handleLogout}>Logout</button>
+            </div>
+          ) : (
+            <NavLink to="/login" className="btn btn-sm btn-primary w-full text-center">Accedi</NavLink>
+          )}
+        </div>
       </div>
     </div>
   )
