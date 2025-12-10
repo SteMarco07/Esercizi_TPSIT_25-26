@@ -1,18 +1,36 @@
-# React + Vite
+# Spese Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Descrizione del Progetto
 
-Currently, two official plugins are available:
+Spese Tracker è un'applicazione web sviluppata con React e Vite per la gestione e il monitoraggio delle spese personali. L'app permette agli utenti di registrare, categorizzare e analizzare le proprie spese attraverso un'interfaccia intuitiva, supportata da grafici interattivi e un sistema di autenticazione basato su PocketBase.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Requisiti Funzionali
 
-## React Compiler
+### Must Have
+- **Autenticazione Utente**: Registrazione, login e logout degli utenti con gestione delle sessioni.
+- **Gestione Categorie**: Creazione, modifica ed eliminazione di categorie per organizzare le spese.
+- **Gestione Spese**: Aggiunta, modifica ed eliminazione di spese, associate a categorie, importi e date.
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+### Should Have
+- **Visualizzazione Spese**: Elenco delle spese filtrate per categoria, data o altri criteri.
+- **Dashboard**: Pagina principale con riepilogo delle spese e accesso rapido alle funzionalità.
 
-Note: This will impact Vite dev & build performances.
+### Could Have
+- **Analisi e Grafici**: Visualizzazione di statistiche attraverso grafici interattivi (torta per distribuzione categorie, barre per spese annuali, linee per serie temporali, calendario per spese giornaliere).
 
-## Expanding the ESLint configuration
+### Won't Have
+- Notifiche push per avvisi di superamento budget.
+- Esportazione dei dati in formati come PDF o CSV.
+- Supporto per multi-utenza condivisa (famiglie o gruppi).
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+I requisiti funzionali "Won't Have" sono stati categorizzati in questo modo fin dall'inizio per avere chiaro un obiettivo da raggiungere senza "distrazioni", trascurando funzionalità che potrebbero essere implementate in futuro, ma inizialmente è stato preferibile evitarle.
+
+
+
+## Requisiti Non Funzionali
+
+- **Prestazioni**: Build veloce grazie a Vite.
+- **Sicurezza**: Autenticazione sicura e gestione dei dati tramite PocketBase.
+- **Usabilità**: Interfaccia utente responsive e intuitiva, realizzata con TailwindCSS e DaisyUI.
+- **Compatibilità**: Supporto per browser moderni.
+- **Scalabilità**: Architettura modulare per gestire un numero crescente di spese e utenti.
