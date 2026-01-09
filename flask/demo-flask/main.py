@@ -1,23 +1,29 @@
-from flask import Flask
+from flask import Flask, request
 from faker import Faker
+from flask_cors import CORS
 
-fake = Faker()
+fake = Faker('it_IT')
 
 data = []
 
 app = Flask(__name__)
+CORS(app)
 
 
 def riempi_dati ():
     data = []
-    for _ in range(100):
+    for i in range(1000):
         persona = {
-            "name": fake.name(),
+            "id": i,
+            "name": fake.first_name(),
+            "last_name": fake.last_name(),
             "address": fake.address(),
             "email": fake.email()
         }
         data.append(persona)
     return data
+
+data = riempi_dati()
 
 @app.route("/")
 def hello_world():
@@ -26,8 +32,27 @@ def hello_world():
     }
     return out
 
-@app.route("/data")
+@app.route("/persone")
 def get_data():
-    return {"data": riempi_dati()}
+    return {"data": data}
+
+@app.route("/persone/search")
+def search_persone():
+    name = request.args.get('name')
+    last_name = request.args.get('last_name')
+    email = request.args.get('email')
+    address = request.args.get('address')
+    
+    filtered = [p for p in data if
+                (not name or name.lower() in p['name'].lower()) and
+                (not last_name or last_name.lower() in p['last_name'].lower()) and
+                (not email or email.lower() in p['email'].lower()) and
+                (not address or address.lower() in p['address'].lower())]
+    
+    if filtered == []:
+        return {"message": "Nessun risultato trovato."}, 404
+    
+    return {"data": filtered}
+
 
 app.run("0.0.0.0", port=11000, debug=True)
