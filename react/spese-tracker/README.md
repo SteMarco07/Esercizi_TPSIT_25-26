@@ -3,6 +3,8 @@
 ## Descrizione del Progetto
 
 Spese Tracker è un'applicazione web sviluppata con React e Vite per la gestione e il monitoraggio delle spese personali. L'app permette agli utenti di registrare, categorizzare e analizzare le proprie spese attraverso un'interfaccia intuitiva, supportata da grafici interattivi e un sistema di autenticazione basato su PocketBase.
+<img width="1599" height="765" alt="image" src="https://github.com/user-attachments/assets/fb27ffd3-e336-485d-8f49-afe9bd73a7ea" />
+
 
 ## Requisiti Funzionali
 
