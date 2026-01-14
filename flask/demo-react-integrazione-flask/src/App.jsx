@@ -15,8 +15,7 @@ function Card({ persona }) {
     }}>
       <h3>{persona.name + ' ' + persona.last_name || 'Nome non disponibile'}</h3>
       <p>{"Email: " + (persona.email || 'Email non disponibile')}</p>
-      <p>{"Indirizzo: " + (persona.addres || 'Indirizzo non disponibile')}</p>
-      {/* Aggiungi altri campi se necessario */}
+      <p>{"Indirizzo: " + (persona.address || 'Indirizzo non disponibile')}</p>
     </div>
   )
 }
@@ -36,14 +35,26 @@ function App() {
     })
   }, [])
 
-  useEffect(() => {
-    console.log('Data aggiornata:', data)
-  }, [data])
+  const handleSubmit = (e, data) => {
+    e.preventDefault()
+    fetch('http://127.0.0.1:11000/persone', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+
+    console.log('Dati da inviare:', JSON.stringify(data))
+
+    setData(prevData => [...prevData, data])
+  }
+        
 
   return (
     <>
       <h1>Elenco Persone</h1>
-      <FormAggiunta />
+      <FormAggiunta handleSubmit={handleSubmit} />
       <div style={{ display: 'flex', flexWrap: 'wrap' }}>
         {data.map((persona, index) => (
           <Card key={index} persona={persona} />

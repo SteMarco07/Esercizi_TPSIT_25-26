@@ -54,5 +54,27 @@ def search_persone():
     
     return {"data": filtered}
 
+@app.route("/persone", methods=['POST'])
+def add_persona():
+    if not request.is_json:
+        return {"error": "Richiesta deve essere in formato JSON"}, 400
+    
+    new_persona = request.get_json()
+    
+    # Creazione del nuovo ID
+    new_id = len(data)
+    
+    persona = {
+        "id": new_id,
+        "name": new_persona['name'],
+        "last_name": new_persona['last_name'],
+        "address": new_persona['address'],
+        "email": new_persona['email']
+    }
+    
+    data.append(persona)
+    
+    return {"message": "Persona aggiunta con successo", "persona": persona}, 201
+
 
 app.run("0.0.0.0", port=11000, debug=True)
