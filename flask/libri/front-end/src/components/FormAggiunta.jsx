@@ -4,6 +4,7 @@ import { useStore } from '../store.jsx'
 export default function FormAggiunta({ book }) {
 
     const addResource = useStore(state => state.addResource)
+    const generateBookSuggestion = useStore(state => state.generateBookSuggestion)
     const [showModal, setShowModal] = useState(false)
     const [busy, setBusy] = useState(false)
     const [titolo, setTitolo] = useState("")
@@ -45,6 +46,27 @@ export default function FormAggiunta({ book }) {
         } catch (e) {
             // basic user feedback
             alert('Errore aggiunta: ' + (e.message || e))
+        } finally {
+            setBusy(false)
+        }
+    }
+
+    const handleSuggestion = async () => {
+        try {
+            setBusy(true)
+            const suggestion = await generateBookSuggestion()
+            console.log("suggestion", suggestion)
+            const libro = suggestion.nuovi_libri[0]
+
+            setTitolo(libro.titolo)
+            setAutore(libro.autore)
+            setEditore(libro.editore)
+            setGenere(libro.genere)
+            setAnno(libro.anno)
+            setIsbn(libro.isbn)
+        } catch (e) {
+            // basic user feedback
+            alert('Errore suggerimento: ' + (e.message || e))
         } finally {
             setBusy(false)
         }
@@ -95,6 +117,7 @@ export default function FormAggiunta({ book }) {
 
                         <div className="modal-action mt-8">
                             <button className="btn btn-ghost" onClick={() => setShowModal(false)} disabled={busy}>Annulla</button>
+                            <button className="btn btn-info" onClick={handleSuggestion} disabled={busy}>Suggerisci</button>
                             <button className="btn btn-primary" onClick={handleAdd} disabled={busy}>
                                 {busy ? 'Salvataggio...' : 'Aggiungi Libro'}
                             </button>

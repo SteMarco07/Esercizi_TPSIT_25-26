@@ -39,14 +39,36 @@ export const useStore = create((set, get) => ({
         }
     },
     // 3. Aggiunta di una risorsa (Asincrona)
-    addResource: async (data) => {
+    addResource: async (times) => {
         set({ isLoading: true, error: null });
         try {
-
-            const risultato = await api.addResource(data);
+            const risultato = await api.addResource(times);
             const current = get().resources;
-            set({ resources: [...current, risultato.libro], isLoading: false });
+            current.push(risultato.libro);
+            set({ resources: current, isLoading: false });
 
+        } catch (err) {
+            set({ error: err.message, isLoading: false });
+        }
+    },
+    // 4. Genera nuove risorse fittizie (Asincrona)
+    // TODO: funzione non completa
+    generateResource: async (times) => {
+        set({ isLoading: true, error: null });
+        try {
+            const risultato = await api.generateResource(times);
+
+        } catch (err) {
+            set({ error: err.message, isLoading: false });
+        }
+    },
+    // 5. Genera un suggerimento di un libro per il form di aggiunta
+    generateBookSuggestion: async () => {
+        set({ isLoading: true, error: null });
+        try {
+            const risultato = await api.generateResource(1);
+            console.log(risultato);
+            return risultato;
         } catch (err) {
             set({ error: err.message, isLoading: false });
         }

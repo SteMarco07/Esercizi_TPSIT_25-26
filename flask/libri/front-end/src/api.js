@@ -25,7 +25,7 @@ export const api = {
             return null
         }
     },
-    // [CREATE] Crea una risorsa
+    // [POST] Crea una risorsa
     addResource: async (data) => {
         const url = `http://127.0.0.1:11000/api/libri`
         const response = await fetch(url, {
@@ -33,6 +33,20 @@ export const api = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         })
+        if (!response.ok) {
+            const text = await response.text().catch(() => '')
+            throw new Error(text || `Add failed (${response.status})`)
+        }
+        // optional: try parse json body when provided
+        try {
+            return await response.json()
+        } catch (e) {
+            return null
+        }
+    },
+    // [GET] Genera nuove risorse fittizie
+    generateResource: async (times) => {
+        const response = await fetch("http://127.0.0.1:11000/api/libri/generate/" + times )
         if (!response.ok) {
             const text = await response.text().catch(() => '')
             throw new Error(text || `Add failed (${response.status})`)
