@@ -64,32 +64,32 @@ export default function FormAggiunta({ book }) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div className="form-control">
                                 <label className="label"><span className="label-text font-semibold">Titolo</span></label>
-                                <input type="text" placeholder="Titolo del libro" className="input input-bordered w-full" value={titolo} onChange={(e) => setTitolo(e.target.value)} />
+                                <input type="text" placeholder="Titolo del libro" className="input input-bordered w-full" value={titolo} onChange={(e) => setTitolo(e.target.value)} required />
                             </div>
                             
                             <div className="form-control">
                                 <label className="label"><span className="label-text font-semibold">Autore</span></label>
-                                <input type="text" placeholder="Nome Autore" className="input input-bordered w-full" value={autore} onChange={(e) => setAutore(e.target.value)} />
+                                <input type="text" placeholder="Nome Autore" className="input input-bordered w-full" value={autore} onChange={(e) => setAutore(e.target.value)} required />
                             </div>
 
                             <div className="form-control">
                                 <label className="label"><span className="label-text font-semibold">Editore</span></label>
-                                <input type="text" placeholder="Casa Editrice" className="input input-bordered w-full" value={editore} onChange={(e) => setEditore(e.target.value)} />
+                                <input type="text" placeholder="Casa Editrice" className="input input-bordered w-full" value={editore} onChange={(e) => setEditore(e.target.value)} required />
                             </div>
 
                             <div className="form-control">
                                 <label className="label"><span className="label-text font-semibold">Genere</span></label>
-                                <input type="text" placeholder="Genere" className="input input-bordered w-full" value={genere} onChange={(e) => setGenere(e.target.value)} />
+                                <input type="text" placeholder="Genere" className="input input-bordered w-full" value={genere} onChange={(e) => setGenere(e.target.value)} required />
                             </div>
 
                             <div className="form-control">
                                 <label className="label"><span className="label-text font-semibold">Anno</span></label>
-                                <input type="number" placeholder="Anno di pubblicazione" className="input input-bordered w-full" value={anno} onChange={(e) => setAnno(e.target.value)} />
+                                <input type="number" placeholder="Anno di pubblicazione" className="input input-bordered w-full" value={anno} onChange={(e) => setAnno(e.target.value)} required />
                             </div>
 
                             <div className="form-control">
                                 <label className="label"><span className="label-text font-semibold">ISBN</span></label>
-                                <input type="text" placeholder="Codice ISBN" className="input input-bordered w-full" value={isbn} onChange={(e) => setIsbn(e.target.value)} />
+                                <input type="text" placeholder="Codice ISBN" className="input input-bordered w-full" value={isbn} onChange={(e) => setIsbn(e.target.value)} required />
                             </div>
                         </div>
 

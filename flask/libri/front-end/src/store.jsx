@@ -29,7 +29,8 @@ export const useStore = create((set, get) => ({
     deleteResource: async (id) => {
         set({ isLoading: true, error: null });
         try {
-            await api.deleteResource(id);
+            const risultato = await api.deleteResource(id);
+            console.log(risultato);
             const remaining = get().resources.filter(r => r.id !== id);
             set({ resources: remaining, isLoading: false });
         } catch (err) {
@@ -38,7 +39,16 @@ export const useStore = create((set, get) => ({
         }
     },
     // 3. Aggiunta di una risorsa (Asincrona)
-    addResource: async (id) => {
-        console.log("Aggiunta risorsa con id:", id);
+    addResource: async (data) => {
+        set({ isLoading: true, error: null });
+        try {
+
+            const risultato = await api.addResource(data);
+            const current = get().resources;
+            set({ resources: [...current, risultato.libro], isLoading: false });
+
+        } catch (err) {
+            set({ error: err.message, isLoading: false });
+        }
     }
 }));
