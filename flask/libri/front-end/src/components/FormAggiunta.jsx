@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useStore } from '../store.jsx'
 
 export default function FormAggiunta({ book }) {
@@ -13,6 +13,17 @@ export default function FormAggiunta({ book }) {
     const [genere, setGenere] = useState("")
     const [anno, setAnno] = useState("")
     const [isbn, setIsbn] = useState("")
+
+    // Gestione chiusura modale con ESC
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape' && showModal) {
+                setShowModal(false)
+            }
+        }
+        document.addEventListener('keydown', handleKeyDown)
+        return () => document.removeEventListener('keydown', handleKeyDown)
+    }, [showModal])
 
 
     // Funzione per crare il dizionario di un libro
@@ -55,7 +66,6 @@ export default function FormAggiunta({ book }) {
         try {
             setBusy(true)
             const suggestion = await generateBookSuggestion()
-            console.log("suggestion", suggestion)
             const libro = suggestion.nuovi_libri[0]
 
             setTitolo(libro.titolo)
@@ -79,8 +89,8 @@ export default function FormAggiunta({ book }) {
             </label>
 
             {showModal && (
-                <div className={`modal modal-open`}>
-                    <div className="modal-box w-11/12 max-w-3xl">
+                <div className={`modal modal-open`} onClick={() => setShowModal(false)}>
+                    <div className="modal-box w-11/12 max-w-3xl" onClick={(e) => e.stopPropagation()}>
                         <h3 className="font-bold text-2xl text-center mb-6">Aggiungi un Nuovo Libro</h3>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -117,7 +127,8 @@ export default function FormAggiunta({ book }) {
 
                         <div className="modal-action mt-8">
                             <button className="btn btn-ghost" onClick={() => setShowModal(false)} disabled={busy}>Annulla</button>
-                            <button className="btn btn-info" onClick={handleSuggestion} disabled={busy}>Suggerisci</button>
+                            <button className="btn btn-accent" onClick={clearForm} disabled={busy}>Pulisci campi</button>
+                            <button className="btn btn-secondary" onClick={handleSuggestion} disabled={busy}>Suggerisci</button>
                             <button className="btn btn-primary" onClick={handleAdd} disabled={busy}>
                                 {busy ? 'Salvataggio...' : 'Aggiungi Libro'}
                             </button>
