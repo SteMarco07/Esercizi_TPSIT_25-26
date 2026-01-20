@@ -28,9 +28,9 @@ def crea_libro():
     return libro
 
 # Funzione per creare una lista di libri
-def riempi_dati ():
+def riempi_dati (volte=100):
     data = []
-    for i in range(100):
+    for _ in range(volte):
         data.append(crea_libro())
     return data
 
@@ -39,7 +39,16 @@ data = riempi_dati()
 # Endpoint per ottenere tutti i libri
 @app.route("/api/libri")
 def get_data():
-    return {"data": data}
+    return data
+
+@app.route("/api/libri/generate/<int:count>")
+def generate_libri(count):
+    if not count:
+        count = 100
+    global data
+    nuovi_libri = riempi_dati(count)
+    data.extend(nuovi_libri)
+    return {"message": f"{count} libri generati con successo.", "nuovi_libri": nuovi_libri}, 200
 
 # Endpoint per ottenere un libro specifico mediante dei filtri
 @app.route("/api/libri/search")
@@ -77,7 +86,7 @@ def search_libri():
     if not filtered:
         return {"message": "Nessun risultato trovato."}, 404
 
-    return {"data": filtered}
+    return filtered
 
 
 # Endpoint per aggiungere un nuovo libro
@@ -106,15 +115,15 @@ def add_libro():
 @app.route("/api/libri", methods=['DELETE'])
 def delete_libri():
     data.clear()
-    return {"message": "Tutti i libri sono stati eliminati con successo"}, 200
+    return {"message": "Tutti i libri sono stati eliminati con successo", "libri":[]}, 200
 
 # Endpoint per eliminare un libro specifico mediante l'id
 @app.route("/api/libri/<id>", methods=['DELETE'])
 def delete_libro(id):
-    for i in range(len(data)):
-        if data[i].get("id") == id:
-            data.pop(i)
-            return {"message": "Libro eliminato con successo"}, 200
+    for libro in data:
+        if libro["id"] == id:
+            data.remove(libro)
+            return {"message": "Libro eliminato con successo", "libro": libro}, 200
     return {"message": "Libro non trovato"}, 404
 
 app.run("0.0.0.0", port=11000, debug=True)
