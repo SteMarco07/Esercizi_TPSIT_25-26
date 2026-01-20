@@ -47,8 +47,17 @@ export default function FormAggiunta({ book }) {
         setIsbn("")
     }
 
+
+    const isFormValid = () => {
+        return titolo.trim() && autore.trim() && editore.trim() && genere.trim() && anno.trim() && isbn.trim()
+    }
+
     // Funzione per gestire l'aggiunta di un libro
     const handleAdd = async () => {
+        if (!isFormValid) {
+            alert('Tutti i campi devono essere riempiti.')
+            return
+        }
         try {
             setBusy(true)
             await addResource(generateLibro())
@@ -128,11 +137,16 @@ export default function FormAggiunta({ book }) {
                         <div className="modal-action mt-8">
                             <button className="btn btn-ghost" onClick={() => setShowModal(false)} disabled={busy}>Annulla</button>
                             <button className="btn btn-accent" onClick={clearForm} disabled={busy}>Pulisci campi</button>
-                            <button className="btn btn-secondary" onClick={handleSuggestion} disabled={busy}>Suggerisci</button>
-                            <button className="btn btn-primary" onClick={handleAdd} disabled={busy}>
+                            <button className="btn btn-secondary" onClick={handleSuggestion} disabled={busy}>
+                                {busy ? 'Suggerimento...' : 'Suggerisci'}
+                            </button>
+                            <button className="btn btn-primary" onClick={handleAdd} disabled={!isFormValid() || busy}>
                                 {busy ? 'Salvataggio...' : 'Aggiungi Libro'}
                             </button>
                         </div>
+                        {!isFormValid() && (
+                            <p className="text-sm text-error mt-2 text-center">Tutti i campi devono essere riempiti per procedere.</p>
+                        )}
                     </div>
                 </div>
             )}
