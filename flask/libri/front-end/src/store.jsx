@@ -24,8 +24,7 @@ export const useStore = create((set, get) => ({
         } catch (err) {
             set({ error: err.message, isLoading: false });
         }
-    }
-    ,
+    },
     // 2. Eliminazione di una risorsa per id (Asincrona)
     deleteResource: async (id) => {
         set({ isLoading: true, error: null });
@@ -37,5 +36,9 @@ export const useStore = create((set, get) => ({
             set({ error: err.message, isLoading: false });
             throw err
         }
+    },
+    // 3. Aggiunta di una risorsa (Asincrona)
+    addResource: async (id) => {
+        console.log("Aggiunta risorsa con id:", id);
     }
 }));
