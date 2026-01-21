@@ -68,6 +68,7 @@ export const useStore = create((set, get) => ({
         try {
             const risultato = await api.generateResource(1);
             console.log(risultato);
+            set({isLoading: false });
             return risultato;
         } catch (err) {
             set({ error: err.message, isLoading: false });

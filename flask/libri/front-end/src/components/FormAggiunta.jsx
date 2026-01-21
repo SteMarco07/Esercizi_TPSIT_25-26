@@ -36,7 +36,7 @@ export default function FormAggiunta({ book }) {
             "anno": anno,
             "isbn": isbn
         }
-        }
+    }
 
     const clearForm = () => {
         setTitolo("")
@@ -99,39 +99,46 @@ export default function FormAggiunta({ book }) {
 
             {showModal && (
                 <div className={`modal modal-open`} onClick={() => setShowModal(false)}>
-                    <div className="modal-box w-11/12 max-w-3xl" onClick={(e) => e.stopPropagation()}>
+                    <div className="modal-box w-11/12 max-w-xl" onClick={(e) => e.stopPropagation()}>
                         <h3 className="font-bold text-2xl text-center mb-6">Aggiungi un Nuovo Libro</h3>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+                        <div className="grid grid-cols-1 gap-3">
+                            {/* Campo del titolo */}
                             <div className="form-control">
                                 <label className="label"><span className="label-text font-semibold">Titolo</span></label>
                                 <input type="text" placeholder="Titolo del libro" className="input input-bordered w-full" value={titolo} onChange={(e) => setTitolo(e.target.value)} required />
                             </div>
-                            
+                            {/* Campo dell'autore */}
                             <div className="form-control">
                                 <label className="label"><span className="label-text font-semibold">Autore</span></label>
                                 <input type="text" placeholder="Nome Autore" className="input input-bordered w-full" value={autore} onChange={(e) => setAutore(e.target.value)} required />
                             </div>
+                            <div className="flex gap-5">
+                                {/* Campo dell'editore */}
+                                <div className="form-control flex-1">
+                                    <label className="label"><span className="label-text font-semibold">Editore</span></label>
+                                    <input type="text" placeholder="Casa Editrice" className="input input-bordered w-full" value={editore} onChange={(e) => setEditore(e.target.value)} required />
+                                </div>
+                                {/* Campo del genere */}
+                                <div className="form-control flex-1">
+                                    <label className="label"><span className="label-text font-semibold">Genere</span></label>
+                                    <input type="text" placeholder="Genere" className="input input-bordered w-full" value={genere} onChange={(e) => setGenere(e.target.value)} required />
+                                </div>
 
-                            <div className="form-control">
-                                <label className="label"><span className="label-text font-semibold">Editore</span></label>
-                                <input type="text" placeholder="Casa Editrice" className="input input-bordered w-full" value={editore} onChange={(e) => setEditore(e.target.value)} required />
+                            </div>
+                            <div className="flex gap-5">
+                                {/* Campo della descrizione */}
+                                <div className="form-control flex-1">
+                                    <label className="label"><span className="label-text font-semibold">Anno</span></label>
+                                    <input type="number" placeholder="Anno di pubblicazione" className="input input-bordered w-full" value={anno} onChange={(e) => setAnno(e.target.value)} required />
+                                </div>
+                                {/* Campo dell'ISBN */}
+                                <div className="form-control flex-1">
+                                    <label className="label"><span className="label-text font-semibold">ISBN</span></label>
+                                    <input type="text" placeholder="Codice ISBN" className="input input-bordered w-full" value={isbn} onChange={(e) => setIsbn(e.target.value)} required />
+                                </div>
                             </div>
 
-                            <div className="form-control">
-                                <label className="label"><span className="label-text font-semibold">Genere</span></label>
-                                <input type="text" placeholder="Genere" className="input input-bordered w-full" value={genere} onChange={(e) => setGenere(e.target.value)} required />
-                            </div>
-
-                            <div className="form-control">
-                                <label className="label"><span className="label-text font-semibold">Anno</span></label>
-                                <input type="number" placeholder="Anno di pubblicazione" className="input input-bordered w-full" value={anno} onChange={(e) => setAnno(e.target.value)} required />
-                            </div>
-
-                            <div className="form-control">
-                                <label className="label"><span className="label-text font-semibold">ISBN</span></label>
-                                <input type="text" placeholder="Codice ISBN" className="input input-bordered w-full" value={isbn} onChange={(e) => setIsbn(e.target.value)} required />
-                            </div>
                         </div>
 
                         <div className="modal-action mt-8">
