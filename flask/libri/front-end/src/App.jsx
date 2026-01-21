@@ -2,6 +2,9 @@ import { useEffect } from 'react'
 import './App.css'
 import { useStore } from './store.jsx'
 import BookCard from './components/BookCard'
+import FormAggiunta from './components/FormAggiunta.jsx'
+
+
 
 function App() {
   const { resources, isLoading, error, fetchResources } = useStore()
@@ -10,11 +13,18 @@ function App() {
     fetchResources()
   }, [fetchResources])
 
+
   return (
     <div className="min-h-screen p-6 bg-base-200">
-      
-      <div className="container mx-auto">
+
+      <div className="container mx-auto mt-10 w-full">
+
         <h1 className="text-3xl font-bold mb-6">Elenco Libri</h1>
+
+        <FormAggiunta key={"FormAggiunta"}/>
+      </div>
+
+      <div className="container mx-auto mt-10">
 
         {isLoading && <p>Caricamento in corso...</p>}
         {error && <p className="text-error">Errore: {error}</p>}
