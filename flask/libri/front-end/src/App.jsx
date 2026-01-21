@@ -20,6 +20,7 @@ function App() {
       <div className="container mx-auto mt-10 w-full">
 
         <h1 className="text-3xl font-bold mb-6">Elenco Libri</h1>
+        
 
         <FormAggiunta key={"FormAggiunta"}/>
       </div>

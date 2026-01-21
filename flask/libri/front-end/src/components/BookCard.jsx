@@ -21,7 +21,7 @@ export default function BookCard({ book }) {
 
   return (
     <>
-      <div className="card bg-base-100 shadow-xl">
+      <div className="card bg-base-100 shadow-xl hover:scale-105 transition-transform duration-300">
         <div className="card-body">
           <h2 className="card-title">{book.titolo}</h2>
           <p className="text-sm">{book.autore}</p>
