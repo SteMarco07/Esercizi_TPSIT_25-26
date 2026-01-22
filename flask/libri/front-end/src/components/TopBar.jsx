@@ -81,9 +81,10 @@ export default function TopBar() {
 
             {/* Sezione Comandi */}
             {showCommandsSection && (
-                <div className="absolute top-16 right-4 bg-base-100 shadow-lg rounded-box p-4 z-10">
+                <div className="absolute top-20 right-4 bg-base-100 shadow-lg rounded-box p-4 z-10">
                     <h4 className="font-bold mb-2">Comandi Backend</h4>
-                    <div className="form-control mb-2">
+
+                    <div className='grid grid-cols-2 gap-2'>
                         <label className="label">
                             <span className="label-text">Aggiungi libri:</span>
                         </label>
@@ -94,9 +95,10 @@ export default function TopBar() {
                             value={addCount}
                             onChange={(e) => setAddCount(e.target.value)}
                         />
+                        <button className="btn btn-success btn-sm flex-1">Aggiungi {addCount || 0} libri</button>
+                        <button className="btn btn-error btn-sm flex-1">Elimina tutti i libri</button>
                     </div>
-                    <button className="btn btn-success btn-sm mb-2">Aggiungi {addCount || 0} libri</button>
-                    <button className="btn btn-error btn-sm">Elimina tutti i libri</button>
+
                 </div>
             )}
         </div>
