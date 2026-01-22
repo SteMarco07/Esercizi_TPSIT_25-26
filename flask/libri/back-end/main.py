@@ -126,4 +126,24 @@ def delete_libro(id):
             return {"message": "Libro eliminato con successo", "libro": libro}, 200
     return {"message": "Libro non trovato"}, 404
 
+@app.route("/api/libri/modify", methods=['PATCH'])
+def modify_libro():
+    if not request.is_json:
+        return {"error": "Richiesta deve essere in formato JSON"}, 400
+    
+    modified_libro = request.get_json()
+    libro_id = modified_libro.get("id")
+
+    for libro in data:
+        if libro["id"] == libro_id:
+            libro["titolo"] = modified_libro.get("titolo", libro["titolo"])
+            libro["anno"] = modified_libro.get("anno", libro["anno"])
+            libro["autore"] = modified_libro.get("autore", libro["autore"])
+            libro["genere"] = modified_libro.get("genere", libro["genere"])
+            libro["isbn"] = modified_libro.get("isbn", libro["isbn"])
+            libro["editore"] = modified_libro.get("editore", libro["editore"])
+            return {"message": "Libro modificato con successo", "libro": libro}, 200
+
+    return {"message": "Libro non trovato"}, 404
+
 app.run("0.0.0.0", port=11000, debug=True)

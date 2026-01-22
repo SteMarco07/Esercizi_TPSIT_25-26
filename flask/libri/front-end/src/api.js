@@ -76,5 +76,24 @@ export const api = {
             return null
         }
     },
+    // [PATCH] Aggiorna una risorsa per id
+    updateResource: async (data) => {
+        const url = `http://127.0.0.1:11000/api/libri/modify`
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        if (!response.ok) {
+            const text = await response.text().catch(() => '')
+            throw new Error(text || `Add failed (${response.status})`)
+        }
+        // optional: try parse json body when provided
+        try {
+            return await response.json()
+        } catch (e) {
+            return null
+        }
+    }
 
 };

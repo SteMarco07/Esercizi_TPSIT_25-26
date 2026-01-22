@@ -116,4 +116,24 @@ export const useStore = create((set, get) => ({
             throw err
         }
     },
+    // 10. Modifca di una risorsa esistente
+    updateResource: async (data) => {
+        set({ isLoading: true, error: null });
+        try {
+            const risultato = await api.updateResource(data);
+            libro_modificato = risultato.libro;
+            const current = get().resources;
+            current.push(risultato.libro);
+            for (libro in current) {
+                if (libro.id == libro_modificato.id) {
+                    libro = libro_modificato
+                    break
+                }
+            }
+            set({ resources: current, isLoading: false });
+
+        } catch (err) {
+            set({ error: err.message, isLoading: false });
+        }
+    }
 }));
