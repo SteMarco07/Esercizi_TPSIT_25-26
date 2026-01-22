@@ -14,18 +14,6 @@ export default function FormAggiunta({ book }) {
     const [anno, setAnno] = useState("")
     const [isbn, setIsbn] = useState("")
 
-    // Gestione chiusura modale con ESC
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            if (e.key === 'Escape' && showModal) {
-                setShowModal(false)
-            }
-        }
-        document.addEventListener('keydown', handleKeyDown)
-        return () => document.removeEventListener('keydown', handleKeyDown)
-    }, [showModal])
-
-
     // Funzione per crare il dizionario di un libro
     const generateLibro = () => {
         return {
