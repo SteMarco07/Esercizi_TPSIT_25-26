@@ -3,7 +3,7 @@ import FormAggiunta from './formAggiunta'
 import { useStore } from '../store.jsx'
 
 export default function TopBar() {
-    const { searchText, searchFields, setSearchText, toggleSearchField, generateResource } = useStore()
+    const { searchText, searchFields, setSearchText, toggleSearchField, generateResource, deleteAllResources } = useStore()
     const [addCount, setAddCount] = useState('')
     const [showSearchSection, setShowSearchSection] = useState(false)
     const [showCommandsSection, setShowCommandsSection] = useState(false)
@@ -75,7 +75,7 @@ export default function TopBar() {
                             onChange={(e) => setAddCount(e.target.value)}
                         />
                         <button className="btn btn-success btn-sm flex-1" onClick={() => generateResource(addCount)}>Aggiungi {addCount || 0} libri</button>
-                        <button className="btn btn-error btn-sm flex-1">Elimina tutti i libri</button>
+                        <button className="btn btn-error btn-sm flex-1" onClick={() => deleteAllResources()}>Elimina tutti i libri</button>
                     </div>
 
                 </div>

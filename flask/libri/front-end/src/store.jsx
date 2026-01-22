@@ -102,5 +102,18 @@ export const useStore = create((set, get) => ({
                 active && book[field]?.toString().toLowerCase().includes(searchText.toLowerCase())
             )
         );
-    }
+    },
+    // 9. Elimina tutte le risorse
+    deleteAllResources: async () => {
+        set({ isLoading: true, error: null });
+        try {
+            const risultato = await api.deleteAllResources();
+            console.log(risultato);
+            const remaining = risultato.libri;
+            set({ resources: remaining, isLoading: false });
+        } catch (err) {
+            set({ error: err.message, isLoading: false });
+            throw err
+        }
+    },
 }));
