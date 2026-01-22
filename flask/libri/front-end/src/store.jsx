@@ -61,11 +61,15 @@ export const useStore = create((set, get) => ({
         }
     },
     // 4. Genera nuove risorse fittizie (Asincrona)
-    // TODO: funzione non completa
     generateResource: async (times) => {
         set({ isLoading: true, error: null });
         try {
             const risultato = await api.generateResource(times);
+            const current = get().resources;
+            for (const libro of risultato.nuovi_libri) {
+                current.push(libro);
+            }
+            set({ resources: current, isLoading: false });
 
         } catch (err) {
             set({ error: err.message, isLoading: false });
