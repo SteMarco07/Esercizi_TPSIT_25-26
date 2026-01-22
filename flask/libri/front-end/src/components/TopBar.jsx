@@ -3,9 +3,21 @@ import FormAggiunta from './formAggiunta'
 
 export default function TopBar() {
     const [searchText, setSearchText] = useState('')
-    const [showSearchModal, setShowSearchModal] = useState(false)
+    const [showSearchSection, setShowSearchSection] = useState(false)
     const [showCommandsSection, setShowCommandsSection] = useState(false)
     const [addCount, setAddCount] = useState('')
+    const [searchFields, setSearchFields] = useState({
+        titolo: true,
+        autore: true,
+        anno: true,
+        editore: false,
+        genere: false,
+        isbn: false
+    })
+
+    const toggleField = (field) => {
+        setSearchFields(prev => ({ ...prev, [field]: !prev[field] }))
+    }
 
     return (
         <div className="navbar bg-base-100 shadow-lg mb-6 fixed top-0 left-0 right-0 z-50">
@@ -17,7 +29,7 @@ export default function TopBar() {
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
                 />
-                <button className="btn btn-square" onClick={() => setShowSearchModal(true)}>
+                <button className="btn btn-square" onClick={() => setShowSearchSection(!showSearchSection)}>
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
@@ -40,41 +52,20 @@ export default function TopBar() {
 
             </div>
 
-            {/* Modale Ricerca */}
-            {showSearchModal && (
-                <div className="modal modal-open">
-                    <div className="modal-box">
-                        <h3 className="font-bold text-lg">Opzioni Ricerca</h3>
-                        <p className="py-4">Seleziona i campi per la ricerca:</p>
-                        <div className="form-control">
-                            <label className="label cursor-pointer">
-                                <span className="label-text">Titolo</span>
-                                <input type="checkbox" className="checkbox" />
-                            </label>
-                            <label className="label cursor-pointer">
-                                <span className="label-text">Autore</span>
-                                <input type="checkbox" className="checkbox" />
-                            </label>
-                            <label className="label cursor-pointer">
-                                <span className="label-text">Editore</span>
-                                <input type="checkbox" className="checkbox" />
-                            </label>
-                            <label className="label cursor-pointer">
-                                <span className="label-text">Genere</span>
-                                <input type="checkbox" className="checkbox" />
-                            </label>
-                            <label className="label cursor-pointer">
-                                <span className="label-text">Anno</span>
-                                <input type="checkbox" className="checkbox" />
-                            </label>
-                            <label className="label cursor-pointer">
-                                <span className="label-text">ISBN</span>
-                                <input type="checkbox" className="checkbox" />
-                            </label>
-                        </div>
-                        <div className="modal-action">
-                            <button className="btn" onClick={() => setShowSearchModal(false)}>Chiudi</button>
-                        </div>
+            {/* Sezione Ricerca */}
+            {showSearchSection && (
+                <div className="absolute top-20 left-4 bg-base-100 shadow-lg rounded-box p-4 z-10">
+                    <h4 className="font-bold mb-2">Opzioni Ricerca</h4>
+                    <div className="grid grid-cols-3 gap-2">
+                        {Object.entries(searchFields).map(([field, active]) => (
+                            <button
+                                key={field}
+                                className={`btn btn-sm ${active ? 'btn-primary' : 'btn-outline'}`}
+                                onClick={() => toggleField(field)}
+                            >
+                                {field.charAt(0).toUpperCase() + field.slice(1)}
+                            </button>
+                        ))}
                     </div>
                 </div>
             )}
