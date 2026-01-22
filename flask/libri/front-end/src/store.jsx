@@ -12,6 +12,15 @@ export const useStore = create((set, get) => ({
     resources: [],  // Lista delle risorse (vuota all'inizio)
     isLoading: false, // Flag per mostrare il caricamento
     error: null,      // Per gestire eventuali errori
+    searchText: '',   // Testo di ricerca
+    searchFields: {   // Campi attivi per ricerca
+        titolo: true,
+        autore: true,
+        anno: true,
+        editore: false,
+        genere: false,
+        isbn: false
+    },
 
     // AZIONI (Functioni per modificare lo stato)
 
@@ -73,5 +82,21 @@ export const useStore = create((set, get) => ({
         } catch (err) {
             set({ error: err.message, isLoading: false });
         }
+    },
+    // 6. Imposta testo ricerca
+    setSearchText: (text) => set({ searchText: text }),
+    // 7. Toggle campo ricerca
+    toggleSearchField: (field) => set((state) => ({
+        searchFields: { ...state.searchFields, [field]: !state.searchFields[field] }
+    })),
+    // 8. Getter risorse filtrate
+    getFilteredResources: () => {
+        const { resources, searchText, searchFields } = get();
+        if (!searchText.trim()) return resources;
+        return resources.filter(book =>
+            Object.entries(searchFields).some(([field, active]) =>
+                active && book[field]?.toString().toLowerCase().includes(searchText.toLowerCase())
+            )
+        );
     }
 }));

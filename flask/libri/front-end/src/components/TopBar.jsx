@@ -1,23 +1,12 @@
 import React, { useState } from 'react'
 import FormAggiunta from './formAggiunta'
+import { useStore } from '../store.jsx'
 
 export default function TopBar() {
-    const [searchText, setSearchText] = useState('')
+    const { searchText, searchFields, setSearchText, toggleSearchField } = useStore()
+    const [addCount, setAddCount] = useState('')
     const [showSearchSection, setShowSearchSection] = useState(false)
     const [showCommandsSection, setShowCommandsSection] = useState(false)
-    const [addCount, setAddCount] = useState('')
-    const [searchFields, setSearchFields] = useState({
-        titolo: true,
-        autore: true,
-        anno: true,
-        editore: false,
-        genere: false,
-        isbn: false
-    })
-
-    const toggleField = (field) => {
-        setSearchFields(prev => ({ ...prev, [field]: !prev[field] }))
-    }
 
     return (
         <div className="navbar bg-base-100 shadow-lg mb-6 fixed top-0 left-0 right-0 z-50">
@@ -49,7 +38,6 @@ export default function TopBar() {
                     Azioni
                 </button>
 
-
             </div>
 
             {/* Sezione Ricerca */}
@@ -61,7 +49,7 @@ export default function TopBar() {
                             <button
                                 key={field}
                                 className={`btn btn-sm ${active ? 'btn-primary' : 'btn-outline'}`}
-                                onClick={() => toggleField(field)}
+                                onClick={() => toggleSearchField(field)}
                             >
                                 {field.charAt(0).toUpperCase() + field.slice(1)}
                             </button>
