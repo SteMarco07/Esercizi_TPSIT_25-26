@@ -77,7 +77,7 @@ export default function TopBar() {
             {/* Sezione Comandi */}
             {showCommandsSection && (
                 <div className="absolute top-20 right-4 bg-base-100 shadow-lg rounded-box p-4 z-10">
-                    <h4 className="font-bold mb-2">Comandi Backend</h4>
+                    <h4 className="font-bold mb-2">Comandi di gestione dei libri</h4>
 
                     <div className='grid grid-cols-2 gap-2'>
                         <label className="label">
