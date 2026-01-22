@@ -7,6 +7,22 @@ export default function TopBar() {
     const [addCount, setAddCount] = useState('')
     const [showSearchSection, setShowSearchSection] = useState(false)
     const [showCommandsSection, setShowCommandsSection] = useState(false)
+    const [showModalDeleteAll, setShowModalDeleteAll] = useState(false)
+    const [busy, setBusy] = useState(false)
+
+
+    const handleDelete = async () => {
+        try {
+            setBusy(true)
+            await deleteAllResources()
+            setShowModalDeleteAll(false)
+        } catch (e) {
+            // basic user feedback
+            console.log('Errore eliminazione: ' + (e.message || e))
+        } finally {
+            setBusy(false)
+        }
+    }
 
     return (
         <div className="navbar bg-base-100 shadow-lg mb-6 fixed top-0 left-0 right-0 z-50">
@@ -75,9 +91,24 @@ export default function TopBar() {
                             onChange={(e) => setAddCount(e.target.value)}
                         />
                         <button className="btn btn-success btn-sm flex-1" onClick={() => generateResource(addCount)}>Aggiungi {addCount || 0} libri</button>
-                        <button className="btn btn-error btn-sm flex-1" onClick={() => deleteAllResources()}>Elimina tutti i libri</button>
+                        <button className="btn btn-error btn-sm flex-1" onClick={() => setShowModalDeleteAll(true)}>Elimina tutti i libri</button>
                     </div>
 
+                </div>
+            )}
+
+            {showModalDeleteAll && (
+                <div className={`modal modal-open`}>
+                    <div className="modal-box">
+                        <h3 className="font-bold text-lg">Conferma eliminazione</h3>
+                        <p className="py-4">Sei sicuro di voler eliminare tutti i libri?</p>
+                        <div className="modal-action">
+                            <button className="btn" onClick={() => {setShowModalDeleteAll(false); }} disabled={busy}>Annulla</button>
+                            <button className="btn btn-error" onClick={handleDelete}>
+                                {busy ? 'Eliminazione...' : 'Elimina tutti i libri'}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
