@@ -24,22 +24,22 @@ export default function BookCard({ book }) {
     }
   }
 
-  const generateLibro = () => {
+  const generateLibro = (libro) => {
     return {
-      "id": bookData.id,
-      "titolo": bookData.titolo,
-      "autore": bookData.autore,
-      "editore": bookData.editore,
-      "genere": bookData.genere,
-      "anno": bookData.anno,
-      "isbn": bookData.isbn
+      "id": libro.id,
+      "titolo": libro.titolo,
+      "autore": libro.autore,
+      "editore": libro.editore,
+      "genere": libro.genere,
+      "anno": libro.anno,
+      "isbn": libro.isbn
     }
   }
 
   const handleSave = async () => {
     try {
       setBusy(true)
-      await updateResource(generateLibro())
+      await updateResource(bookDataTmp)
     } catch (e) {
       console.log('Errore modifica: ' + (e.message || e))
     } finally {

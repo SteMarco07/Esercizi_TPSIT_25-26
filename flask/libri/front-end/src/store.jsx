@@ -121,6 +121,7 @@ export const useStore = create((set, get) => ({
         set({ isLoading: true, error: null });
         try {
             const risultato = await api.updateResource(data);
+            console.log(risultato);
             const libro_modificato = risultato.libro;
             const current = get().resources;
             for (const libro in current) {

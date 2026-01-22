@@ -78,6 +78,7 @@ export const api = {
     },
     // [PATCH] Aggiorna una risorsa per id
     updateResource: async (data) => {
+        console.log( "dati da inviare per l'update",data)
         const url = `http://127.0.0.1:11000/api/libri/modify`
         const response = await fetch(url, {
             method: 'PATCH',

@@ -133,17 +133,16 @@ def modify_libro():
     
     modified_libro = request.get_json()
     libro_id = modified_libro.get("id")
+    print(modified_libro)
 
     for libro in data:
         if libro["id"] == libro_id:
-            libro["titolo"] = modified_libro.get("titolo", libro["titolo"])
-            libro["anno"] = modified_libro.get("anno", libro["anno"])
-            libro["autore"] = modified_libro.get("autore", libro["autore"])
-            libro["genere"] = modified_libro.get("genere", libro["genere"])
-            libro["isbn"] = modified_libro.get("isbn", libro["isbn"])
-            libro["editore"] = modified_libro.get("editore", libro["editore"])
+            for key, val in modified_libro.items():
+                if key != "id":
+                    libro[key] = val
+            print("tutti i libri:", data)
             return {"message": "Libro modificato con successo", "libro": libro}, 200
 
     return {"message": "Libro non trovato"}, 404
 
-app.run("0.0.0.0", port=11000, debug=True)
+app.run("0.0.0.0", port=11000, debug=True)  
