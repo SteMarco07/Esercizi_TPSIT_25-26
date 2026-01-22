@@ -93,9 +93,9 @@ export default function FormAggiunta({ book }) {
 
     return (
         <>
-            <label className="floating">
-                <input type="text" placeholder="Aggiungi un libro" className="input input-lg  w-full" onClick={() => setShowModal(true)} />
-            </label>
+            <button className="btn btn-primary" onClick={() => setShowModal(true)} aria-label="Aggiungi libro">
+                Aggiungi Libro
+            </button>
 
             {showModal && (
                 <div className={`modal modal-open`} onClick={() => setShowModal(false)}>
