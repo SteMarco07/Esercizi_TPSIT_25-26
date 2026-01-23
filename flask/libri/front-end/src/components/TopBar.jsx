@@ -29,7 +29,7 @@ export default function TopBar() {
             setShowModalDeleteAll(false)
         } catch (e) {
             // basic user feedback
-            console.log('Errore eliminazione: ' + (e.message || e))
+            alert('Errore eliminazione: ' + (e.message || e))
         } finally {
             setBusy(false)
         }

@@ -1,100 +1,48 @@
+const BASE = 'http://127.0.0.1:11000'
+
+async function request(path, options = {}) {
+    const res = await fetch(BASE + path, options)
+    if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        throw new Error(text || `${res.status} ${res.statusText}`)
+    }
+    try {
+        return await res.json()
+    } catch (e) {
+        return null
+    }
+}
 
 export const api = {
     // [READ] Leggi tutte le risorse
-    fetchResources: async () => {
-        const response = await fetch('http://127.0.0.1:11000/api/libri')
-        const json = await response.json()
-        return json
-    }
-    ,
-    // [DELETE] Elimina una risorsa per id
-    deleteResource: async (id) => {
-        const url = `http://127.0.0.1:11000/api/libri/${id}`
-        const response = await fetch(url, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' }
-        })
-        if (!response.ok) {
-            const text = await response.text().catch(() => '')
-            throw new Error(text || `Delete failed (${response.status})`)
-        }
-        // optional: try parse json body when provided
-        try {
-            return await response.json()
-        } catch (e) {
-            return null
-        }
-    },
-    // [POST] Crea una risorsa
-    addResource: async (data) => {
-        const url = `http://127.0.0.1:11000/api/libri`
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        })
-        if (!response.ok) {
-            const text = await response.text().catch(() => '')
-            throw new Error(text || `Add failed (${response.status})`)
-        }
-        // optional: try parse json body when provided
-        try {
-            return await response.json()
-        } catch (e) {
-            return null
-        }
-    },
-    // [GET] Genera nuove risorse fittizie
-    generateResource: async (times) => {
-        const response = await fetch("http://127.0.0.1:11000/api/libri/generate/" + times )
-        if (!response.ok) {
-            const text = await response.text().catch(() => '')
-            throw new Error(text || `Add failed (${response.status})`)
-        }
-        // optional: try parse json body when provided
-        try {
-            return await response.json()
-        } catch (e) {
-            return null
-        }
-    },
-    // [DELETE] Elimina tutte le risorse
-    deleteAllResources: async () => {
-        const url = `http://127.0.0.1:11000/api/libri`
-        const response = await fetch(url, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' }
-        })
-        if (!response.ok) {
-            const text = await response.text().catch(() => '')
-            throw new Error(text || `Delete failed (${response.status})`)
-        }
-        // optional: try parse json body when provided
-        try {
-            return await response.json()
-        } catch (e) {
-            return null
-        }
-    },
-    // [PATCH] Aggiorna una risorsa per id
-    updateResource: async (data) => {
-        console.log( "dati da inviare per l'update",data)
-        const url = `http://127.0.0.1:11000/api/libri/modify`
-        const response = await fetch(url, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        })
-        if (!response.ok) {
-            const text = await response.text().catch(() => '')
-            throw new Error(text || `Add failed (${response.status})`)
-        }
-        // optional: try parse json body when provided
-        try {
-            return await response.json()
-        } catch (e) {
-            return null
-        }
-    }
+    fetchResources: async () => request('/api/libri'),
 
-};
+    // [DELETE] Elimina una risorsa per id
+    deleteResource: async (id) => request(`/api/libri/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+    }),
+
+    // [POST] Crea una risorsa
+    addResource: async (data) => request('/api/libri', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    }),
+
+    // [GET] Genera nuove risorse fittizie
+    generateResource: async (times) => request(`/api/libri/generate/${times || 100}`),
+
+    // [DELETE] Elimina tutte le risorse
+    deleteAllResources: async () => request('/api/libri', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+    }),
+
+    // [PATCH] Aggiorna una risorsa per id
+    updateResource: async (data) => request('/api/libri/modify', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+}

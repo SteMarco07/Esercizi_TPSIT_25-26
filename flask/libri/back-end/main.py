@@ -133,14 +133,12 @@ def modify_libro():
     
     modified_libro = request.get_json()
     libro_id = modified_libro.get("id")
-    print(modified_libro)
 
     for libro in data:
         if libro["id"] == libro_id:
             for key, val in modified_libro.items():
                 if key != "id":
                     libro[key] = val
-            print("tutti i libri:", data)
             return {"message": "Libro modificato con successo", "libro": libro}, 200
 
     return {"message": "Libro non trovato"}, 404
