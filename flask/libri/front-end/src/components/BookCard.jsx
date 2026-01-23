@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useStore } from '../store.jsx'
 
 export default function BookCard({ book }) {
@@ -10,6 +10,15 @@ export default function BookCard({ book }) {
   const [busy, setBusy] = useState(false)
   const [bookData, setBookData] = useState(book)
   const [bookDataTmp, setBookDataTmp] = useState(book)
+
+
+  useEffect(() => {
+    if (!showModalInfo) {
+      setEditable(false)
+      setBookDataTmp(bookData)
+    }
+
+  }, [showModalInfo])
 
   const handleDelete = async () => {
     try {
@@ -24,24 +33,12 @@ export default function BookCard({ book }) {
     }
   }
 
-  const generateLibro = (libro) => {
-    return {
-      "id": libro.id,
-      "titolo": libro.titolo,
-      "autore": libro.autore,
-      "editore": libro.editore,
-      "genere": libro.genere,
-      "anno": libro.anno,
-      "isbn": libro.isbn
-    }
-  }
-
   const handleSave = async () => {
     try {
       setBusy(true)
       await updateResource(bookDataTmp)
     } catch (e) {
-      console.log('Errore modifica: ' + (e.message || e))
+      alert('Errore modifica: ' + (e.message || e))
     } finally {
       setBookData(bookDataTmp)
       setBusy(false)
