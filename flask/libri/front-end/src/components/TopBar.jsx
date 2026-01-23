@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import FormAggiunta from './formAggiunta'
+import FormAggiunta from './FormAggiunta.jsx'
 import { useStore } from '../store.jsx'
 
 export default function TopBar() {
