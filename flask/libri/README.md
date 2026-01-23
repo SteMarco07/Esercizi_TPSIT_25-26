@@ -45,25 +45,25 @@ Esecuzione rapida del front-end
 
 ### Requisiti funzionali — MoSCoW
 
-Must
+#### Must
 - Visualizzare l'elenco dei libri con dettagli principali
 - Aggiungere un singolo libro (tramite form)
 - Eliminare un singolo libro o tutti i libri (con conferma)
 - Eliminare tutti i libri presenti (con conferma)
 
-Should
+#### Should
 - Modificare i dettagli di un libro (tramite form)
 - Visualizzazione in dettaglio di un libro
 - Ricerca dei libri (testo + selezione campi)
 - Generare in blocco libri
 - Suggerire dati per il form di aggiunta
 
-Could
+#### Could
 - Lista definita dei generi
 - Implementazione delle copertine dei libri
 - Validazione dei campi e persistenza su DB
 
-Won't
+#### Won't
 - Autenticazione o controllo accessi in questa versione
 
 ### Requisiti non funzionali (sintesi)
