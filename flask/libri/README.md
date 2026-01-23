@@ -66,9 +66,26 @@ Esecuzione rapida del front-end
 #### Won't
 - Autenticazione o controllo accessi in questa versione
 
-### Requisiti non funzionali (sintesi)
+### Requisiti non funzionali
 - Usabilità: interfaccia semplice e accessibile.
 - Prestazioni: risposte rapide per operazioni comuni.
 - Affidabilità: esiti chiari per operazioni CRUD.
 - Sicurezza: sviluppo con CORS abilitato; in produzione usare HTTPS e validazione server-side.
 - Manutenibilità: struttura modulare per facilitare estensioni.
+
+## User story
+
+- Come bibliotecario voglio cercare libri usando testo e selezione dei campi in modo da trovare rapidamente titoli o autori da prestare o aggiornare.
+  - Criteri di accettazione: la ricerca restituisce risultati rilevanti; posso attivare/disattivare i campi su cui cercare.
+
+- Come studentessa voglio aggiungere un nuovo libro tramite un form in modo da inserire velocemente i volumi utili per il corso.
+  - Criteri di accettazione: il form valida i campi essenziali; dopo il salvataggio il libro appare nella lista.
+
+- Come lettore voglio visualizzare le schede dei libri con i dettagli in modo da scegliere quale prendere in prestito.
+  - Criteri di accettazione: ogni scheda mostra titolo, autore, editore, anno e ISBN; posso aprire il dettaglio per maggiori informazioni.
+
+- Come responsabile inventario voglio eliminare singoli o più libri in modo da rimuovere rapidamente voci obsolete dal catalogo.
+  - Criteri di accettazione: le eliminazioni richiedono conferma; la lista si aggiorna correttamente dopo l'operazione.
+
+- Come tester/demo, voglio generare blocchi di libri fittizi in modo da popolare la lista e verificare il comportamento dell'interfaccia.
+  - Criteri di accettazione: la generazione bulk aggiunge i libri al client; l'operazione segnala successo o errore.
