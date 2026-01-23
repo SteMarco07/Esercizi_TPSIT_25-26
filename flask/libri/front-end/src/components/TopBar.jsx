@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import FormAggiunta from './formAggiunta'
 import { useStore } from '../store.jsx'
 
@@ -9,6 +9,17 @@ export default function TopBar() {
     const [showCommandsSection, setShowCommandsSection] = useState(false)
     const [showModalDeleteAll, setShowModalDeleteAll] = useState(false)
     const [busy, setBusy] = useState(false)
+    // Theme (DaisyUI) state
+    const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light')
+
+    useEffect(() => {
+        try {
+            document.documentElement.setAttribute('data-theme', theme)
+            localStorage.setItem('theme', theme)
+        } catch (e) {
+            // ignore in non-browser env
+        }
+    }, [theme])
 
 
     const handleDelete = async () => {
@@ -48,10 +59,29 @@ export default function TopBar() {
 
             <div className="navbar-end space-x-2">
 
+                
+
+                {/* Theme toggle button */}
+                <button
+                    className="btn btn-ghost"
+                    onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}
+                    title="Cambia tema"
+                >
+                    {theme === 'light' ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10 2a.75.75 0 01.75.75V4a.75.75 0 01-1.5 0V2.75A.75.75 0 0110 2zM15.22 4.78a.75.75 0 011.06 1.06l-1.06 1.06a.75.75 0 01-1.06-1.06l1.06-1.06zM18 10a.75.75 0 01-.75.75H16a.75.75 0 010-1.5h1.25A.75.75 0 0118 10zM15.22 15.22a.75.75 0 00-1.06 1.06l1.06 1.06a.75.75 0 001.06-1.06l-1.06-1.06zM10 16a.75.75 0 01.75.75V18a.75.75 0 01-1.5 0v-1.25A.75.75 0 0110 16zM4.78 15.22a.75.75 0 00-1.06-1.06L2.66 15.22a.75.75 0 001.06 1.06l1.06-1.06zM2 10a.75.75 0 01.75-.75H4a.75.75 0 010 1.5H2.75A.75.75 0 012 10zM4.78 4.78a.75.75 0 011.06-1.06L5.78 2.66A.75.75 0 004.72 3.72L3.66 4.78z" />
+                            <path d="M10 5.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" />
+                        </svg>
+                    ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M17.293 13.293A8 8 0 116.707 2.707a7 7 0 1010.586 10.586z" />
+                        </svg>
+                    )}
+                </button>
                 <FormAggiunta />
 
                 <button className="btn btn-primary" onClick={() => setShowCommandsSection(!showCommandsSection)}>
-                    Azioni
+                    Gestione
                 </button>
 
             </div>
