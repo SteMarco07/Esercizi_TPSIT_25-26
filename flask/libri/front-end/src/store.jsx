@@ -124,7 +124,7 @@ export const useStore = create((set, get) => ({
             console.log(risultato);
             const libro_modificato = risultato.libro;
             const current = get().resources;
-            for (const libro in current) {
+            for (let libro in current) {
                 if (libro.id == libro_modificato.id) {
                     libro = libro_modificato
                     break
